@@ -1,0 +1,52 @@
+name: Daily upstream sync
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+    inputs:
+      confirm_deletions:
+        description: "确认应用上一轮待确认清单中的全部上游删除（请先审阅最新运行摘要）"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: poseforge-upstream-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'sincalaway/PoseForge'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out destination repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Fetch upstream history
+        run: |
+          git remote add upstream https://github.com/anhao/ai-pose-gallery-zh.git
+          git fetch --no-tags upstream main
+
+      - name: Apply additions and updates; queue deletions for confirmation
+        env:
+          CONFIRM_UPSTREAM_DELETIONS: ${{ inputs.confirm_deletions || false }}
+        run: python3 scripts/sync_upstream.py refs/remotes/upstream/main
+
+      - name: Commit and push sync changes
+        run: |
+          if git diff --cached --quiet; then
+            echo "No sync changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(sync): apply upstream additions and updates"
+          git push origin HEAD:main

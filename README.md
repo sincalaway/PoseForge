@@ -99,6 +99,10 @@ bash scripts/build.sh
 - **Cloudflare Workers：** 仓库通过 `worker.ts` 和 `wrangler.jsonc` 提供 Workers 入口及静态资源。可先运行 `npx wrangler dev` 本地验证，再用 `npx wrangler deploy` 部署。
 - **Cloudflare Pages：** 连接 Git 仓库时，将构建命令设为 `bash scripts/build.sh`、输出目录设为 `dist`。`functions/api/proxy.ts` 提供 Pages Functions 的 `/api/proxy` 代理入口。
 
+## 上游同步
+
+仓库每天自动同步上游新增和修改；上游删除会保留并等待人工确认。具体规则与确认步骤见[上游同步说明](docs/upstream-sync.md)。
+
 ## 主要目录
 
 ```text
