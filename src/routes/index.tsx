@@ -75,7 +75,7 @@ function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
         <Link
           to="/poses"
-          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
+          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">🕺 动作姿势库</h2>
@@ -96,7 +96,7 @@ function DashboardPage() {
 
         <Link
           to="/costumes"
-          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
+          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">👗 服装穿搭库</h2>
@@ -117,7 +117,7 @@ function DashboardPage() {
 
         <Link
           to="/portraits"
-          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
+          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">👤 人像颜值库</h2>
@@ -138,7 +138,7 @@ function DashboardPage() {
       </div>
 
       {/* 热门人像 Top10 速选区 */}
-      <section className="rounded-[20px] bg-muted p-4">
+      <section className="iridescent-panel rounded-[20px] p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="flex items-center gap-1.5 text-sm font-semibold sm:text-base">
             <FlameIcon className="size-4 text-orange-500" />
@@ -159,7 +159,7 @@ function DashboardPage() {
               <div
                 key={item.id}
                 onClick={() => togglePortrait(item)}
-                className="group relative cursor-pointer overflow-hidden rounded-xl bg-background transition hover:-translate-y-0.5 hover:shadow-md"
+                className="portrait-tile group relative cursor-pointer overflow-hidden rounded-xl bg-background transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="relative aspect-4/5 overflow-hidden">
                   <img
