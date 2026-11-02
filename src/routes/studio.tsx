@@ -71,7 +71,7 @@ export const Route = createFileRoute('/studio')({
   component: StudioPage,
 })
 
-const PROVIDER_LIST: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'comfyui']
+const PROVIDER_LIST: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'pollinations', 'modelscope', 'comfyui']
 
 function StudioPage() {
   const {

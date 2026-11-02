@@ -26,7 +26,7 @@ export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 })
 
-const PROVIDER_ORDER: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'comfyui']
+const PROVIDER_ORDER: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'pollinations', 'modelscope', 'comfyui']
 
 function SettingsPage() {
   const { apiConfig, updateApiConfig, updateProviderConfig } = useStudio()
@@ -80,8 +80,8 @@ function SettingsPage() {
         }
       />
 
-      {/* 五大协议切换标签 */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      {/* 图片生成服务切换 */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
         {PROVIDER_ORDER.map((id) => {
           const itemMeta = PROVIDER_META[id]
           const isActive = pid === id
@@ -168,7 +168,10 @@ function SettingsPage() {
           />
         </Field>
 
-        <Field label={pid === 'comfyui' ? 'API Key（可选，本地留空）' : 'API Key'}>
+        <Field
+          label={pid === 'comfyui' ? 'API Key（可选，本地留空）' : 'API Key'}
+          hint={pid === 'pollinations' ? 'Pollinations 建议浏览器应用使用 BYOP 授权流程。本项目按现有架构将你填写的 Key 保存在本机浏览器，请使用自己的、预算受限的 Key。' : undefined}
+        >
           <div className="relative">
             <Input
               type={showKey ? 'text' : 'password'}
@@ -190,6 +193,10 @@ function SettingsPage() {
             </button>
           </div>
         </Field>
+
+        {(pid === 'modelscope' || pid === 'pollinations') && (
+          <p className="text-xs text-muted-foreground">{pid === 'modelscope' ? 'ModelScope 使用异步图像任务。图生图要求服务端可访问参考图 URL；本地上传的图片和三合一拼图暂不可用。' : '图生图要求可公开访问的参考图 URL；本地上传的图片和三合一拼图暂不可用。'}</p>
+        )}
 
         {pid !== 'comfyui' && (
           <Field label="默认模型 ID">

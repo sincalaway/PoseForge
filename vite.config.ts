@@ -48,6 +48,10 @@ function localAssetsAndProxyPlugin(): Plugin {
       if (googKey) forwardHeaders['x-goog-api-key'] = googKey as string
       const dashAsync = req.headers['x-dashscope-async']
       if (dashAsync) forwardHeaders['X-DashScope-Async'] = dashAsync as string
+      const modelScopeAsync = req.headers['x-modelscope-async-mode']
+      if (modelScopeAsync) forwardHeaders['X-ModelScope-Async-Mode'] = modelScopeAsync as string
+      const modelScopeTask = req.headers['x-modelscope-task-type']
+      if (modelScopeTask) forwardHeaders['X-ModelScope-Task-Type'] = modelScopeTask as string
 
       const upstream = await fetch(targetUrl, {
         method: req.method || 'POST',

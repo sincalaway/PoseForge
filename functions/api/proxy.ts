@@ -21,6 +21,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'https://ark.cn-beijing.volces.com', // 火山方舟 / Doubao
   'https://generativelanguage.googleapis.com', // Google Gemini
   'https://api.openai.com', // OpenAI
+  'https://gen.pollinations.ai', // Pollinations
+  'https://api-inference.modelscope.cn', // ModelScope API-Inference
 ]
 
 function matchOriginRule(target: URL, rawRule: string): boolean {
@@ -92,7 +94,7 @@ const limitBodySize = (body: ReadableStream<Uint8Array> | null, limit: number) =
   )
 }
 
-export const onRequestPost = async (context: { request: Request; env?: ProxyEnv }) => {
+const handleProxyRequest = async (context: { request: Request; env?: ProxyEnv }) => {
   const { request, env } = context
 
   const targetUrl = request.headers.get('x-target-url')
@@ -110,22 +112,24 @@ export const onRequestPost = async (context: { request: Request; env?: ProxyEnv 
     return jsonResponse(403, 'Target origin not allowed')
   }
 
+  if (request.method !== 'GET' && request.method !== 'POST') return jsonResponse(405, 'Method not allowed')
+
   const declaredLength = Number(request.headers.get('content-length') ?? '0')
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
     return jsonResponse(413, `Request body exceeds ${MAX_BODY_BYTES} bytes`)
   }
 
   const forwardHeaders = new Headers()
-  for (const key of ['content-type', 'authorization', 'x-goog-api-key', 'x-dashscope-async']) {
+  for (const key of ['content-type', 'authorization', 'x-goog-api-key', 'x-dashscope-async', 'x-modelscope-async-mode', 'x-modelscope-task-type']) {
     const val = request.headers.get(key)
     if (val) forwardHeaders.set(key, val)
   }
 
   try {
     const upstream = await fetch(target.toString(), {
-      method: 'POST',
+      method: request.method,
       headers: forwardHeaders,
-      body: limitBodySize(request.body, MAX_BODY_BYTES),
+      body: request.method === 'GET' ? undefined : limitBodySize(request.body, MAX_BODY_BYTES),
     })
     return new Response(upstream.body, {
       status: upstream.status,
@@ -140,3 +144,6 @@ export const onRequestPost = async (context: { request: Request; env?: ProxyEnv 
     return jsonResponse(502, err instanceof Error ? err.message : 'Upstream proxy error')
   }
 }
+
+export const onRequestGet = handleProxyRequest
+export const onRequestPost = handleProxyRequest

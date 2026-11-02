@@ -48,7 +48,7 @@ const SAFE_MODE_KEY = 'pose_atlas_safe_mode_v1'
 const COMFY_CONFIG_VERSION = 3
 
 const shouldEnableProxyByDefault = (provider?: ImageProviderId) =>
-  provider === 'qwen' || provider === 'doubao'
+  provider === 'qwen' || provider === 'doubao' || provider === 'pollinations' || provider === 'modelscope'
 
 const DEFAULT_API_CONFIG: ApiConfig = {
   activeProvider: 'gemini',
@@ -79,6 +79,18 @@ const DEFAULT_API_CONFIG: ApiConfig = {
       baseUrl: PROVIDER_META.doubao.defaultBaseUrl,
       apiKey: '',
       model: PROVIDER_META.doubao.models[0].value,
+      customModel: '',
+    },
+    pollinations: {
+      baseUrl: PROVIDER_META.pollinations.defaultBaseUrl,
+      apiKey: '',
+      model: PROVIDER_META.pollinations.models[0].value,
+      customModel: '',
+    },
+    modelscope: {
+      baseUrl: PROVIDER_META.modelscope.defaultBaseUrl,
+      apiKey: '',
+      model: PROVIDER_META.modelscope.models[0].value,
       customModel: '',
     },
     comfyui: {
@@ -175,6 +187,8 @@ function mergeStoredConfig(raw: unknown): ApiConfig {
       gpt: { ...DEFAULT_API_CONFIG.providers.gpt, ...obj.providers?.gpt },
       qwen: { ...DEFAULT_API_CONFIG.providers.qwen, ...obj.providers?.qwen },
       doubao: { ...DEFAULT_API_CONFIG.providers.doubao, ...obj.providers?.doubao },
+      pollinations: { ...DEFAULT_API_CONFIG.providers.pollinations, ...obj.providers?.pollinations },
+      modelscope: { ...DEFAULT_API_CONFIG.providers.modelscope, ...obj.providers?.modelscope },
       comfyui: comfy.provider,
     },
     gptParams: { ...DEFAULT_API_CONFIG.gptParams, ...obj.gptParams },

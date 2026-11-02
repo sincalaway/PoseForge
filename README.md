@@ -29,7 +29,8 @@
 - **服装库：** 按季节、款式和标签筛选，并查看中文描述与英文提示词。
 - **人像库：** 按分区、发长、发型、精选题集和热门榜单筛选。
 - **AI 合成台：** 将人像、服装、姿势和自定义附加参考图组合成配方；支持参考拼图、结构化提示词、图片生成记录及本地历史，姿势槽位支持素体白模/深度图切换。
-- **图像生成接口：** Google Gemini、OpenAI GPT Image、阿里云百炼 Qwen、字节火山方舟 Doubao，以及本地 ComfyUI。可用模型与参数以应用内配置为准。
+- **图像生成接口：** Google Gemini、OpenAI GPT Image、阿里云百炼 Qwen、字节火山方舟 Doubao、Pollinations、ModelScope，以及本地 ComfyUI。各服务通过统一生成接口和 provider adapter 接入；可用模型与参数以应用内配置为准。
+- **扩展接口：** 新增 provider 的类型、配置、适配器和代理注册步骤见 [图片生成 provider 适配器开发指南](docs/image-provider-adapters.md)。
 - **ComfyUI 插件：** 在画布中通过姿势、服装、人像和三合一配方节点浏览图库、输出参考图与提示词；姿势和配方节点支持切换深度图，可用于 ControlNet Depth 工作流。
 
 ## 数据规模
