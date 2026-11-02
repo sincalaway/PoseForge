@@ -1,4 +1,4 @@
-# AI 角色参考与合成工作台（中文版）
+# 灵姿图鉴
 
 姿势库（1,439 张素体白模 + 1,439 张深度图）、服装库与人像库，共 **4,345 条参考数据、11,568 张本地图片**；并提供 AI 角色合成台和 ComfyUI 自定义节点插件。
 
@@ -50,7 +50,7 @@
 
 ```bash
 cd /path/to/ComfyUI/custom_nodes
-git clone --depth 1 https://github.com/anhao/ai-pose-gallery-zh.git ai-pose-gallery-zh
+git clone --depth 1 https://github.com/sincalaway/PoseForge.git PoseForge
 ```
 
 重启 ComfyUI 后，在画布空白处右键打开 **「AI角色三合一参考图集」** 节点分类。插件提供姿势、服装、人像和三合一配方节点；姿势与配方节点可切换素体白模或深度图，配方节点可组合参考图并输出图片张量与提示词。
