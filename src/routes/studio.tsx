@@ -29,7 +29,7 @@ import { type ChangeEvent, type DragEvent, useEffect, useMemo, useRef, useState 
 import { toast } from 'sonner'
 import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
 import { Field, Section } from '@/components/common/FormSection'
-import { WorkflowParameters } from '@/components/studio/WorkflowParameters'
+import { ComfyWorkflowBindings } from '@/components/studio/ComfyWorkflowBindings'
 import { applyWorkflowOverrides, validateReferenceCombinations, workflowIdentity } from '@/lib/comfyWorkflowParameters'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Badge } from '@/components/ui/badge'
@@ -920,92 +920,15 @@ function StudioPage() {
             </Field>
 
             {activeProvider === 'comfyui' && (
-              <>
-                {!parsedComfyNodes.valid && (
-                  <div className="col-span-full rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-                    {parsedComfyNodes.error}
-                  </div>
-                )}
-
-                <Field label="人像图节点 (LoadImage)">
-                  <Select
-                    value={apiConfig.comfyuiParams.portraitNodeId}
-                    onValueChange={(v) => updateComfyUiParams({ portraitNodeId: v })}
-                  >
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">不绑定</SelectItem>
-                      {parsedComfyNodes.imageNodes.map((n) => (
-                        <SelectItem key={n.id} value={n.id} className="text-xs">
-                          #{n.id} {n.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                <Field label="服装图节点 (LoadImage)">
-                  <Select
-                    value={apiConfig.comfyuiParams.costumeNodeId}
-                    onValueChange={(v) => updateComfyUiParams({ costumeNodeId: v })}
-                  >
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">不绑定</SelectItem>
-                      {parsedComfyNodes.imageNodes.map((n) => (
-                        <SelectItem key={n.id} value={n.id} className="text-xs">
-                          #{n.id} {n.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                <Field label="姿势图节点 (LoadImage)">
-                  <Select
-                    value={apiConfig.comfyuiParams.poseNodeId}
-                    onValueChange={(v) => updateComfyUiParams({ poseNodeId: v })}
-                  >
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">不绑定</SelectItem>
-                      {parsedComfyNodes.imageNodes.map((n) => (
-                        <SelectItem key={n.id} value={n.id} className="text-xs">
-                          #{n.id} {n.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-
-                <Field label="正向提示词节点 (Prompt)">
-                  <Select
-                    value={apiConfig.comfyuiParams.promptNodeId}
-                    onValueChange={(v) => updateComfyUiParams({ promptNodeId: v })}
-                  >
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">保留工作流原提示词</SelectItem>
-                      {parsedComfyNodes.promptNodes.map((n) => (
-                        <SelectItem key={n.id} value={n.id} className="text-xs">
-                          #{n.id} {n.title} ({n.field})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </>
+              <ComfyWorkflowBindings
+                params={apiConfig.comfyuiParams}
+                parsedNodes={parsedComfyNodes}
+                showAdvanced={showAdvanced}
+                onChange={updateComfyUiParams}
+                onPreview={setZoomImageUrl}
+                onUploadingChange={setUploadingSlot}
+              />
             )}
-
-            {activeProvider === 'comfyui' && showAdvanced && <WorkflowParameters onPreview={setZoomImageUrl} onUploadingChange={setUploadingSlot} />}
 
             {/* 展开的高级协议专属参数 */}
             {showAdvanced && (
