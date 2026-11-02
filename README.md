@@ -66,6 +66,21 @@ git clone --depth 1 https://github.com/sincalaway/PoseForge.git PoseForge
 
 - **线上网页：** 浏览器会直接访问你配置的 ComfyUI 地址。请按 ComfyUI 的部署方式开放服务，并仅将实际网页来源加入 CORS 允许列表；不要为了方便使用通配来源公开服务。
 
+#### ComfyUI Desktop 启动参数
+
+若通过线上网页 `https://ai-pose-361.workers.dev` 调用本机 ComfyUI Desktop，请在 Desktop 中配置以下启动参数：
+
+```bash
+--enable-manager --enable-cors-header https://ai-pose-361.workers.dev
+```
+
+| 参数 | 作用 | 是否必须 |
+| --- | --- | --- |
+| `--enable-manager` | 开启 ComfyUI Manager 功能。 | 推荐开启 |
+| `--enable-cors-header https://ai-pose-361.workers.dev` | 允许该前端来源跨域访问 ComfyUI，解决浏览器请求的 CORS 问题。 | 必须 |
+
+在 ComfyUI Desktop 中打开 **实例管理**，选择当前运行的 ComfyUI 实例，进入 **启动参数** 选项卡；启用 `--enable-cors-header` 并将 `https://ai-pose-361.workers.dev` 填入输入框，同时保持 `--enable-manager` 开启。最后点击 **Restart to apply changes** 重启实例，使配置生效。此设置只允许指定来源；若前端域名变更，请同步更新 CORS 地址。
+
 在应用的「接口配置」中选择 **本地 ComfyUI** 后，可检测连接、导入 ComfyUI 导出的 API 工作流 JSON、绑定图片/提示词节点，并设置高级参数。模型与本地运行说明见 [ComfyUI 本地指南](docs/comfyui-local.md)；高级工作流参数说明见 [工作流参数指南](docs/comfyui-workflow-parameters.md)。
 
 ## 本地开发
