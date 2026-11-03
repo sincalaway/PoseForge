@@ -1,3 +1,4 @@
+import { ImageViewer } from '@/components/common/ImageViewer'
 import { useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
@@ -29,12 +30,12 @@ import { type ChangeEvent, type DragEvent, useEffect, useMemo, useRef, useState 
 import { toast } from 'sonner'
 import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
 import { Field, Section } from '@/components/common/FormSection'
-import { ComfyWorkflowBindings } from '@/components/studio/ComfyWorkflowBindings'
+import { WorkflowParameters } from '@/components/studio/WorkflowParameters'
 import { applyWorkflowOverrides, validateReferenceCombinations, workflowIdentity } from '@/lib/comfyWorkflowParameters'
 import { PageHeader } from '@/components/common/PageHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
@@ -71,17 +72,17 @@ export const Route = createFileRoute('/studio')({
   component: StudioPage,
 })
 
-const PROVIDER_LIST: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'pollinations', 'modelscope', 'comfyui']
+const PROVIDER_LIST: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'comfyui']
 
 function StudioPage() {
   const {
+    hydrated, activeTask, resumeGeneration, stopTracking,
     recipe,
     apiConfig,
     history,
     customPrompt,
     setCustomPrompt,
     previewUrl,
-    setPreviewUrl,
     isGenerating,
     generatingModel,
     generationProgress,
@@ -393,7 +394,7 @@ function StudioPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-6">
         {/* 左栏：参考图、模型参数与 Prompt */}
         <div
-          className="flex flex-col gap-4 lg:col-span-7"
+          className="flex min-w-0 flex-col gap-4 lg:col-span-7"
           onDragOver={(e) => {
             e.preventDefault()
             setIsDragging(true)
@@ -404,7 +405,7 @@ function StudioPage() {
           {/* 1. 参考图组合 */}
           <Section
             title="1. 参考图组合"
-            className="md:grid-cols-1"
+            className="@lg/section:grid-cols-1"
             actions={
               <div className="flex flex-wrap items-center gap-1.5">
                 <input
@@ -446,7 +447,7 @@ function StudioPage() {
               </div>
             )}
             {/* 3 个核心图库槽位：手机端单列舒展展示，平板/桌面端三列并排 */}
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="grid min-w-0 grid-cols-1 gap-2 @min-[42rem]/section:grid-cols-3">
               {/* 人像槽 */}
               <div className={`relative flex min-w-0 items-start gap-2.5 rounded-xl bg-background p-2.5 ${showReferenceErrors && missingReferences.includes('人像') ? 'ring-1 ring-destructive' : ''}`}>
                 {recipe.portrait ? (
@@ -563,7 +564,7 @@ function StudioPage() {
                     </button>
                     <div className="flex min-h-12 min-w-0 flex-1 flex-col justify-between gap-1">
                       <div className="flex items-center justify-between gap-1">
-                        <div className="flex min-w-0 items-center gap-1.5">
+                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                           <span className="shrink-0 text-[11px] text-muted-foreground">姿势</span>
                           {recipe.pose.source !== 'upload' && (
                             <div
@@ -640,7 +641,7 @@ function StudioPage() {
             {/* 附加参考图列表 + 可视化拖拽/粘贴上传框 */}
             <div className="space-y-2 pt-1">
               {extraImages.length > 0 && (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                <div className="grid min-w-0 grid-cols-1 gap-2 @min-[42rem]/section:grid-cols-3">
                   {extraImages.map((img, idx) => (
                     <div
                       key={img.id}
@@ -920,15 +921,92 @@ function StudioPage() {
             </Field>
 
             {activeProvider === 'comfyui' && (
-              <ComfyWorkflowBindings
-                params={apiConfig.comfyuiParams}
-                parsedNodes={parsedComfyNodes}
-                showAdvanced={showAdvanced}
-                onChange={updateComfyUiParams}
-                onPreview={setZoomImageUrl}
-                onUploadingChange={setUploadingSlot}
-              />
+              <>
+                {!parsedComfyNodes.valid && (
+                  <div className="col-span-full rounded-xl border border-destructive/40 bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                    {parsedComfyNodes.error}
+                  </div>
+                )}
+
+                <Field label="人像图节点 (LoadImage)">
+                  <Select
+                    value={apiConfig.comfyuiParams.portraitNodeId}
+                    onValueChange={(v) => updateComfyUiParams({ portraitNodeId: v })}
+                  >
+                    <SelectTrigger className="w-full text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">不绑定</SelectItem>
+                      {parsedComfyNodes.imageNodes.map((n) => (
+                        <SelectItem key={n.id} value={n.id} className="text-xs">
+                          #{n.id} {n.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="服装图节点 (LoadImage)">
+                  <Select
+                    value={apiConfig.comfyuiParams.costumeNodeId}
+                    onValueChange={(v) => updateComfyUiParams({ costumeNodeId: v })}
+                  >
+                    <SelectTrigger className="w-full text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">不绑定</SelectItem>
+                      {parsedComfyNodes.imageNodes.map((n) => (
+                        <SelectItem key={n.id} value={n.id} className="text-xs">
+                          #{n.id} {n.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="姿势图节点 (LoadImage)">
+                  <Select
+                    value={apiConfig.comfyuiParams.poseNodeId}
+                    onValueChange={(v) => updateComfyUiParams({ poseNodeId: v })}
+                  >
+                    <SelectTrigger className="w-full text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">不绑定</SelectItem>
+                      {parsedComfyNodes.imageNodes.map((n) => (
+                        <SelectItem key={n.id} value={n.id} className="text-xs">
+                          #{n.id} {n.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="正向提示词节点 (Prompt)">
+                  <Select
+                    value={apiConfig.comfyuiParams.promptNodeId}
+                    onValueChange={(v) => updateComfyUiParams({ promptNodeId: v })}
+                  >
+                    <SelectTrigger className="w-full text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">保留工作流原提示词</SelectItem>
+                      {parsedComfyNodes.promptNodes.map((n) => (
+                        <SelectItem key={n.id} value={n.id} className="text-xs">
+                          #{n.id} {n.title} ({n.field})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </>
             )}
+
+            {activeProvider === 'comfyui' && showAdvanced && <WorkflowParameters onPreview={setZoomImageUrl} onUploadingChange={setUploadingSlot} />}
 
             {/* 展开的高级协议专属参数 */}
             {showAdvanced && (
@@ -1279,10 +1357,17 @@ function StudioPage() {
             )}
           </Section>
 
+          {activeTask && <Section title="未决任务" className="@lg/section:grid-cols-1">
+            <p className="break-all text-xs">{activeTask.task ? `任务 ${activeTask.task.promptId}：刷新后查询原任务，不重复提交。` : '提交结果未知或提交前被中断，请核对后端队列；不会自动重试提交。'}</p>
+            <div className="flex flex-wrap gap-2">
+              <Button disabled={isGenerating || !activeTask.task} onClick={() => void resumeGeneration()}>恢复追踪</Button>
+              <Button variant="outline" onClick={() => void stopTracking()}>停止跟踪（不取消后端）</Button>
+            </div>
+          </Section>}
           {/* 3. 提示词与生成按钮 */}
           <Section
             title="3. 提示词 (Prompt)"
-            className="md:grid-cols-1"
+            className="@lg/section:grid-cols-1"
             actions={
               <div className="flex items-center gap-1.5">
                 <Button variant="ghost" size="sm" onClick={() => setCustomPrompt(null)}>
@@ -1312,7 +1397,7 @@ function StudioPage() {
 
             <Button
               onClick={handleGenerate}
-              disabled={isGenerating || uploadingSlot !== null}
+              disabled={!hydrated || !!activeTask || isGenerating || uploadingSlot !== null}
               className="h-11 w-full text-sm font-semibold"
             >
               {isGenerating ? (
@@ -1331,10 +1416,10 @@ function StudioPage() {
         </div>
 
         {/* 右栏：专注展示 AI 生成结果与生成状态 */}
-        <div className="lg:col-span-5">
+        <div className="min-w-0 lg:col-span-5">
           <Section
             title="生成结果"
-            className="md:grid-cols-1"
+            className="@lg/section:grid-cols-1"
             actions={
               previewUrl && !isGenerating ? (
                 <Button variant="outline" size="sm" asChild>
@@ -1360,8 +1445,9 @@ function StudioPage() {
                       </Badge>
                     )}
                     {generationProgress && (
-                      <div className="w-56 space-y-1.5 pt-1">
+                      <div className="w-56 max-w-full space-y-1.5 pt-1">
                         <div className="text-xs text-foreground/80">{generationProgress.message}</div>
+                        {generationProgress.connection && <p className="text-xs text-muted-foreground">连接：{{connecting: 'WebSocket 连接中', connected: 'WebSocket 已连接', reconnecting: 'WebSocket 重连中，HTTP 保底跟踪', degraded: 'WebSocket 暂不可用，HTTP 保底跟踪'}[generationProgress.connection]}</p>}
                         {generationProgress.percent !== undefined && (
                           <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                             <div
@@ -1391,13 +1477,7 @@ function StudioPage() {
                   )}
                 </div>
               ) : previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt="生成结果"
-                  onClick={() => setZoomImageUrl(previewUrl)}
-                  title="点击放大查看"
-                  className="max-h-[480px] w-auto cursor-zoom-in rounded-xl object-contain transition hover:opacity-95"
-                />
+                <button type="button" aria-label="放大生成结果" onClick={() => setZoomImageUrl(previewUrl)} className="cursor-zoom-in rounded-xl focus-visible:outline-2 focus-visible:outline-ring"><img src={previewUrl} alt="生成结果" className="max-h-[480px] w-auto rounded-xl object-contain transition hover:opacity-95" /></button>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-center text-muted-foreground">
                   <SparklesIcon className="size-7 opacity-35" />
@@ -1413,7 +1493,7 @@ function StudioPage() {
       {history.length > 0 && (
         <Section
           title={`生成记录 (${history.length})`}
-          className="grid-cols-2 sm:grid-cols-3 md:grid-cols-4"
+          className="grid-cols-2 @lg/section:grid-cols-3 @3xl/section:grid-cols-4"
           actions={
             <Button variant="ghost" size="sm" onClick={clearHistory}>
               <Trash2Icon className="size-3.5" />
@@ -1426,13 +1506,8 @@ function StudioPage() {
               key={h.id}
               className="group flex flex-col justify-between overflow-hidden rounded-2xl bg-background p-2"
             >
-              <div
-                onClick={() => {
-                  setPreviewUrl(h.imageUrl)
-                  setZoomImageUrl(h.imageUrl)
-                }}
-                className="relative aspect-3/4 cursor-zoom-in overflow-hidden rounded-xl bg-muted"
-              >
+              <div className="relative aspect-3/4 overflow-hidden rounded-xl bg-muted">
+                <button type="button" aria-label={`查看生成记录：${h.recipeSummary}`} onClick={() => setZoomImageUrl(h.imageUrl)} className="block h-full w-full cursor-zoom-in focus-visible:outline-2 focus-visible:outline-ring">
                 <img
                   src={h.imageUrl}
                   alt={h.recipeSummary}
@@ -1441,6 +1516,7 @@ function StudioPage() {
                 <span className="absolute bottom-1.5 left-1.5 max-w-[calc(100%-12px)] truncate rounded-md bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white">
                   {h.model}
                 </span>
+                </button>
                 <button
                   type="button"
                   onClick={(e) => {
@@ -1482,35 +1558,12 @@ function StudioPage() {
       )}
 
       {/* 生成结果全屏放大灯箱 */}
-      <Dialog open={Boolean(zoomImageUrl)} onOpenChange={(o) => !o && setZoomImageUrl(null)}>
-        <DialogContent className="max-h-[92vh] w-[95vw] max-w-4xl overflow-y-auto p-4 sm:max-w-4xl">
-          <DialogHeader className="flex flex-row items-center justify-between pr-6">
-            <div><DialogTitle className="text-base">图片大图预览</DialogTitle><DialogDescription className="sr-only">参考图片或生成结果的放大预览。按 Esc 或关闭按钮返回。</DialogDescription></div>
-            {zoomImageUrl && (
-              <Button size="sm" variant="outline" asChild>
-                <a href={zoomImageUrl} download="image.png">
-                  <DownloadIcon className="size-3.5" />
-                  下载原图
-                </a>
-              </Button>
-            )}
-          </DialogHeader>
-          {zoomImageUrl && (
-            <div className="mt-2 flex items-center justify-center overflow-hidden rounded-xl bg-muted/60 p-2">
-              <img
-                src={zoomImageUrl}
-                alt="大图预览"
-                className="max-h-[78vh] w-auto rounded-lg object-contain"
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ImageViewer imageUrl={zoomImageUrl || ''} open={Boolean(zoomImageUrl)} onOpenChange={(open) => !open && setZoomImageUrl(null)} />
 
       {/* 参考拼图独立弹窗（不占用主画布） */}
       <Dialog open={Boolean(stitchModalUrl)} onOpenChange={(o) => !o && setStitchModalUrl(null)}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-3xl overflow-y-auto p-4 sm:max-w-3xl">
-          <DialogHeader className="flex flex-row items-center justify-between pr-6">
+        <DialogContent className="max-h-[90dvh] w-[95vw] max-w-3xl overflow-y-auto p-4 sm:max-w-3xl">
+          <DialogHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pr-8">
             <DialogTitle className="text-base">参考图拼合卡片</DialogTitle>
             {stitchModalUrl && (
               <Button size="sm" variant="outline" asChild>
@@ -1526,7 +1579,7 @@ function StudioPage() {
               <img
                 src={stitchModalUrl}
                 alt="参考拼图"
-                className="max-h-[70vh] w-auto rounded-lg object-contain"
+                className="max-h-[70dvh] w-auto rounded-lg object-contain"
               />
             </div>
           )}
@@ -1535,8 +1588,8 @@ function StudioPage() {
 
       {/* ComfyUI API 工作流 JSON 编辑器弹窗 */}
       <Dialog open={showComfyJsonModal} onOpenChange={setShowComfyJsonModal}>
-        <DialogContent className="max-h-[90vh] w-[95vw] max-w-3xl overflow-y-auto p-4 sm:max-w-3xl">
-          <DialogHeader className="flex flex-row items-center justify-between pr-6">
+        <DialogContent className="max-h-[90dvh] w-[95vw] max-w-3xl overflow-y-auto p-4 sm:max-w-3xl">
+          <DialogHeader className="flex flex-row flex-wrap items-center justify-between gap-3 pr-8">
             <DialogTitle className="text-base">ComfyUI API 工作流 JSON</DialogTitle>
             <Button
               size="sm"

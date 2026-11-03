@@ -25,7 +25,12 @@ export interface PoseGroup {
 }
 
 export interface CostumeItem {
-  source?: 'upload'
+  source?: 'upload' | 'charadb'
+  一级分类?: '现实' | '二次元'
+  来源?: string
+  来源地址?: string
+  日文名称?: string
+  敏感?: boolean
   id: string
   分类: string
   服装名称: string
@@ -70,7 +75,7 @@ export interface RecipeState {
   extraImages?: ExtraReferenceImage[]
 }
 
-export type ImageProviderId = 'gemini' | 'gpt' | 'qwen' | 'doubao' | 'pollinations' | 'modelscope' | 'comfyui'
+export type ImageProviderId = 'gemini' | 'gpt' | 'qwen' | 'doubao' | 'comfyui'
 
 export interface ProviderEndpointConfig {
   baseUrl: string
@@ -90,7 +95,7 @@ export interface WorkflowParameterOverrides {
 
 export interface ComfyUiParams {
   parameterOverrides?: WorkflowParameterOverrides
-  workflowPreset: 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img' | 'qwen21_multiref' | 'custom'
+  workflowPreset: 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img' | 'custom'
   workflowJson: string
   promptNodeId: string
   portraitNodeId: string
@@ -157,4 +162,14 @@ export interface GenerationHistoryItem {
   prompt: string
   imageUrl: string
   recipeSummary: string
+  snapshot?: GenerationSnapshot
+}
+
+
+export interface GenerationSnapshot {
+  recipe: RecipeState
+  prompt: string
+  settings: Omit<ApiConfig, 'providers'>
+  models: Record<ImageProviderId, Pick<ProviderEndpointConfig, 'model' | 'customModel'>>
+  submittedWorkflowJson?: string
 }

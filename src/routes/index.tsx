@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useStudio } from '@/store/studioStore'
+import { referenceImageUrl } from '@/lib/recipeImages'
 
 export const Route = createFileRoute('/')({
   staticData: { title: '图库总览' },
@@ -61,7 +62,7 @@ function DashboardPage() {
           title="服装穿搭 (Costume)"
           value={`${costumes.length.toLocaleString('zh-CN')} 套`}
           icon={<ShirtIcon />}
-          desc="8 大分类 · 双语标签"
+          desc="现实 1,407 · 二次元 440"
         />
         <StatCard
           title="人像颜值 (Portrait)"
@@ -75,7 +76,7 @@ function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
         <Link
           to="/poses"
-          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
+          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">🕺 动作姿势库</h2>
@@ -96,17 +97,17 @@ function DashboardPage() {
 
         <Link
           to="/costumes"
-          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
+          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">👗 服装穿搭库</h2>
-            <Badge variant="secondary">1,407</Badge>
+            <Badge variant="secondary">{costumes.length.toLocaleString('zh-CN')}</Badge>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-1.5">
             {costumes.slice(0, 4).map((c) => (
               <img
                 key={c.id}
-                src={`/${c.缩略图}`}
+                src={referenceImageUrl(c.缩略图)}
                 alt={c.服装名称}
                 loading="lazy"
                 className="aspect-3/4 w-full rounded-lg bg-background object-cover"
@@ -117,7 +118,7 @@ function DashboardPage() {
 
         <Link
           to="/portraits"
-          className="gallery-entry group flex flex-col justify-between rounded-[20px] p-4 transition"
+          className="group flex flex-col justify-between rounded-[20px] bg-muted p-4 transition hover:bg-muted/70"
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">👤 人像颜值库</h2>
@@ -138,7 +139,7 @@ function DashboardPage() {
       </div>
 
       {/* 热门人像 Top10 速选区 */}
-      <section className="iridescent-panel rounded-[20px] p-4">
+      <section className="rounded-[20px] bg-muted p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="flex items-center gap-1.5 text-sm font-semibold sm:text-base">
             <FlameIcon className="size-4 text-orange-500" />
@@ -159,7 +160,7 @@ function DashboardPage() {
               <div
                 key={item.id}
                 onClick={() => togglePortrait(item)}
-                className="portrait-tile group relative cursor-pointer overflow-hidden rounded-xl bg-background transition hover:-translate-y-0.5 hover:shadow-md"
+                className="group relative cursor-pointer overflow-hidden rounded-xl bg-background transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className="relative aspect-4/5 overflow-hidden">
                   <img
@@ -191,7 +192,7 @@ function DashboardPage() {
       {/* 底部免责声明提示条 */}
       <footer className="rounded-[18px] border border-border/60 bg-muted/50 px-4 py-3 text-xs leading-relaxed text-muted-foreground">
         <strong className="text-foreground">⚠️ 免责声明：</strong>
-        本站姿势与服饰参考图源自 X 创作者{' '}
+        本站原有姿势与现实服饰参考图源自 X 创作者{' '}
         <a
           href="https://x.com/giaaibusi"
           target="_blank"
@@ -200,7 +201,7 @@ function DashboardPage() {
         >
           ギア (@giaaibusi)
         </a>{' '}
-        公开分享，版权归原作者所有，严禁商业倒卖。默认已开启「安全模式 (SFW)」隐藏 18+ 敏感分类，未满 18 周岁请勿关闭。本工具与素材
+        公开分享。新增二次元服装来自 たき AI · CharaDB，仅收录元数据，图片从来源站点读取，各素材适用各自条件。默认已开启「安全模式 (SFW)」隐藏 18+ 敏感分类，未满 18 周岁请勿关闭。本工具与素材
         <strong className="text-foreground">仅供个人学习与合法艺术创作使用，严禁用于任何违法违规或侵害他人肖像权用途</strong>。{' '}
         <Link to="/guide" className="font-medium text-primary underline">
           查看完整免责声明 →
