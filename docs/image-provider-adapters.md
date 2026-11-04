@@ -17,4 +17,5 @@
 ## 本次新增服务的限制
 
 - Pollinations 使用 `POST /v1/images/generations` 和 OpenAI 兼容图片响应，并用 `image` 字段传参考图；模型目录和计费规则可能变化，请以 [官方 API 文档](https://gen.pollinations.ai/docs) 为准。官方建议浏览器应用通过 BYOP OAuth 获取用户授权 Key；本项目当前是本机浏览器保存 Key 的既有模式。
-- ModelScope API-Inference 使用 `POST /v1/images/generations` 提交异步任务，再通过 `GET /v1/tasks/{task_id}` 轮询。参考图必须是服务端可访问的 URL；本地上传产生的 Data URL 与拼图暂时不支持。具体模型及配额以 [ModelScope API-Inference 文档](https://www.modelscope.cn/docs/model-service/API-Inference/intro) 为准。
+- ModelScope API-Inference 使用 `POST /v1/images/generations` 提交异步任务，再通过 `GET /v1/tasks/{task_id}` 轮询，每 5 秒一次，最多等待 5 分钟。具体模型及配额以 [ModelScope API-Inference 文档](https://www.modelscope.cn/docs/model-service/API-Inference/intro) 为准。
+- 两家新增服务的 adapter 均会拒绝 `data:` 参考图。本地上传/Base64 与三合一拼图暂时不支持；请使用服务端可访问的图片 URL，并按需要关闭三合一合成图。代码中存在模型选项不代表已对外部服务、模型权限及生成结果逐一实测。

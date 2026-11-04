@@ -18,6 +18,9 @@ SYNC_OWNED_PATHS = {
     "scripts/upstream-sync-baseline.txt",
     "scripts/upstream-sync-pending-deletions.json",
     "docs/upstream-sync.md",
+    "README.md",
+    "docs/image-provider-adapters.md",
+    "docs/poseforge-differences.md",
 }
 
 
@@ -207,8 +210,8 @@ def main() -> int:
     if protected_changes:
         summary.extend(
             [
-                "### 未同步的同步配置文件",
-                "这些文件由目标仓库维护，避免上游覆盖同步规则。",
+                "### 未同步的本仓库维护文件",
+                "这些配置与文档由目标仓库维护，避免上游覆盖同步规则和 PoseForge 差异说明。",
                 quoted_paths(sorted(protected_changes)),
             ]
         )
