@@ -66,6 +66,8 @@
 
 本地 `img/` 与 `thumbs/` 各有 6,084 张文件。新增的 PoseForge 集包含 73 张 900×1200 WebP 原图和对应缩略图；其中 PF-C-0007 正面图同时作为主图与视角图引用，只按一张图片计数。远程参考图依赖来源站点可用性，不属于本地镜像文件。
 
+新增服饰集由 `sincalaway` 提供，共 50 套、24 个视角、73 张唯一 WebP 原图（另含 73 张缩略图）。30 个文件名中原有的换行符已规范化，来源及授权记录见 [`data/poseforge/source.json`](data/poseforge/source.json)；授权仅限在 PoseForge 仓库内公开展示与分发，不构成通用开放许可。
+
 ## ComfyUI 使用方式
 
 ### 在 ComfyUI 画布中使用图库节点
