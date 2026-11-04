@@ -13,6 +13,7 @@ export const COSTUME_SOURCES = [
   { id: 'gia-anime', label: 'ギア · 动漫', url: 'https://ai-costume-anime-gallery.pages.dev/', notice: '仅收录元数据，图片由ギア原站提供；使用请遵守原站说明。' },
   { id: 'charadb', label: 'たき AI · CharaDB', url: 'https://github.com/taki-ttt/charadb/blob/main/LICENSE', notice: '仅供参考，须遵守原作者限制；请阅读来源条款。' },
   { id: 'shisei', label: 'Shisei · 中国历代', url: 'https://github.com/wquguru/shisei', notice: 'wquguru 的 AI 生成服装参考，CC0；标注来源。并非专业历史服饰复原。' },
+  { id: 'poseforge', label: 'PoseForge · sincalaway', url: 'https://github.com/sincalaway/PoseForge', notice: '用户确认此批图片仅可在 PoseForge 公开仓库展示与分发，不构成通用开放许可；原图来源 URL 未提供。' },
 ] as const
 
 export function costumeSourceId(item: CostumeItem): string {

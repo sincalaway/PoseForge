@@ -33,7 +33,7 @@ export interface CostumeView {
 }
 
 export interface CostumeItem {
-  source?: 'upload' | 'charadb' | 'gia-anime' | 'shisei'
+  source?: 'upload' | 'charadb' | 'gia-anime' | 'shisei' | 'poseforge'
   views?: CostumeView[]
   selectedView?: string
   一级分类?: '现实' | '二次元'

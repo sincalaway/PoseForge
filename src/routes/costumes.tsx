@@ -334,6 +334,11 @@ function CostumesPage() {
                           <a className="underline" href={SHISEI_SOURCE_URLS.license} target="_blank" rel="noopener noreferrer">图片许可证（CC0）</a>
                         </div>
                       </div>}
+                      {currentItem.source === 'poseforge' && <div className="space-y-2 text-xs text-muted-foreground">
+                        <p>作者/来源：sincalaway。用户确认此批图片仅可在 PoseForge 公开仓库展示与分发；不授予通用开放许可。</p>
+                        <p>原图来源 URL 未提供。</p>
+                        <a className="underline" href="https://github.com/sincalaway/PoseForge" target="_blank" rel="noopener noreferrer">PoseForge 仓库</a>
+                      </div>}
                       {currentItem.source === 'charadb' && <a className="text-xs underline" href={CHARADB_NOTICE_URL} target="_blank" rel="noopener noreferrer">图片仅作参考，禁止真人、未成年人及再分发；查看原作者条件</a>}
                     </DialogHeader>
 
