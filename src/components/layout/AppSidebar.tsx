@@ -29,12 +29,13 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link to="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <LayersIcon className="size-4" />
+                <div className="relative flex aspect-square size-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 text-white shadow-md shadow-indigo-500/20 ring-1 ring-white/25">
+                  <LayersIcon className="size-[18px] stroke-[2.25]" />
+                  <SparklesIcon className="absolute right-0.5 top-0.5 size-3 fill-amber-200 text-amber-200" />
                 </div>
                 <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate text-sm font-semibold">POSE &amp; CHARACTER</span>
-                  <span className="truncate text-xs text-muted-foreground">AI 角色三合一参考台</span>
+                  <span className="truncate text-sm font-bold tracking-tight">PoseForge</span>
+                  <span className="truncate text-[11px] text-muted-foreground">Pose · Style · Character</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -87,13 +88,13 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="sm" asChild tooltip="访问 GitHub 仓库">
               <a
-                href="https://github.com/anhao/ai-pose-gallery-zh"
+                href="https://github.com/sincalaway/PoseForge"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-muted-foreground"
               >
                 <ExternalLinkIcon className="size-3.5" />
-                <span>GitHub · @anhao_ai</span>
+                <span>GitHub · PoseForge</span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
