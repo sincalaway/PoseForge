@@ -13,6 +13,21 @@ export const PREFERRED_POSE_LINE_ORDER = [
 export const NSFW_POSE_SYSTEMS = new Set(['全身单人・性感系', '双人缠绵'])
 export const NSFW_COSTUME_CATEGORIES = new Set(['内衣・睡衣', '性感穿搭'])
 
+export interface GalleryImageStats {
+  originalFiles: number
+  thumbnailFiles: number
+  localImageFiles: number
+}
+
+export function countBy<T>(items: readonly T[], getCategory: (item: T) => string): [string, number][] {
+  const counts = new Map<string, number>()
+  for (const item of items) {
+    const category = getCategory(item) || '未分类'
+    counts.set(category, (counts.get(category) ?? 0) + 1)
+  }
+  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b, 'zh-CN'))
+}
+
 export function isNsfwPoseSystem(system: string): boolean {
   return NSFW_POSE_SYSTEMS.has(system)
 }
@@ -78,7 +93,7 @@ export const posesQuery = queryOptions({
   queryKey: ['gallery', 'poses'],
   staleTime: Infinity,
   queryFn: async () => {
-    const res = await fetch('/data/pose-zh.json')
+    const res = await fetch('/data/pose-zh.json', { cache: 'no-cache' })
     if (!res.ok) throw new Error(`加载姿势数据失败: HTTP ${res.status}`)
     const data = (await res.json()) as PoseItem[]
     return buildPoseGroups(data)
@@ -90,7 +105,7 @@ export const costumesQuery = queryOptions({
   staleTime: Infinity,
   queryFn: async () => {
     const lists = await Promise.all(['/data/costume-zh.json', '/data/costume-anime-zh.json', '/data/costume-gia-anime-zh.json', '/data/costume-shisei-zh.json', '/data/costume-poseforge-zh.json?v=ad21f91'].map(async (url) => {
-      const res = await fetch(url)
+      const res = await fetch(url, { cache: 'no-cache' })
       if (!res.ok) throw new Error(`加载服装数据失败: HTTP ${res.status}`)
       return (await res.json()) as CostumeItem[]
     }))
@@ -102,8 +117,18 @@ export const portraitsQuery = queryOptions({
   queryKey: ['gallery', 'portraits'],
   staleTime: Infinity,
   queryFn: async () => {
-    const res = await fetch('/data/portrait-zh.json')
+    const res = await fetch('/data/portrait-zh.json', { cache: 'no-cache' })
     if (!res.ok) throw new Error(`加载人像数据失败: HTTP ${res.status}`)
     return (await res.json()) as PortraitItem[]
+  },
+})
+
+export const galleryImageStatsQuery = queryOptions({
+  queryKey: ['gallery', 'image-stats'],
+  staleTime: Infinity,
+  queryFn: async () => {
+    const res = await fetch('/data/gallery-stats.json', { cache: 'no-cache' })
+    if (!res.ok) throw new Error(`加载图片统计失败: HTTP ${res.status}`)
+    return (await res.json()) as GalleryImageStats
   },
 })

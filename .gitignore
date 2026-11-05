@@ -25,6 +25,7 @@ node_modules/
 
 # 构建产物与原始 PNG 备份（不上传 Git）
 dist/
+data/gallery-stats.json
 backups/
 img/costume/*.png
 img/portrait/*.png

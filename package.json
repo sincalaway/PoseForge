@@ -4,8 +4,8 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/prepare-static-assets.mjs",
+    "dev": "node scripts/generate-gallery-stats.mjs && vite",
+    "build": "node scripts/generate-gallery-stats.mjs && tsc -b && vite build && node scripts/prepare-static-assets.mjs",
     "lint": "oxlint",
     "preview": "vite preview"
   },

@@ -1,5 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { ExternalLinkIcon, SparklesIcon } from 'lucide-react'
+import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
 import brandWordmark from '@/assets/brand/poseforge-wordmark.jpg'
 import brandIcon from '@/assets/brand/poseforge-icon.jpg'
 import { Badge } from '@/components/ui/badge'
@@ -21,8 +23,16 @@ import { activeNavTo, navGroups } from './nav'
 export function AppSidebar() {
   const pathname = useLocation({ select: (l) => l.pathname })
   const active = activeNavTo(pathname)
+  const { data: posesData } = useQuery(posesQuery)
+  const { data: costumes } = useQuery(costumesQuery)
+  const { data: portraits } = useQuery(portraitsQuery)
   const { recipe } = useStudio()
   const count = [recipe.portrait, recipe.costume, recipe.pose].filter(Boolean).length
+  const galleryCounts = {
+    poses: posesData?.items.length,
+    costumes: costumes?.length,
+    portraits: portraits?.length,
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -50,9 +60,9 @@ export function AppSidebar() {
                     <Link to={item.to}>
                       <item.icon />
                       <span className="flex-1 truncate">{item.title}</span>
-                      {item.badge && (
+                      {(item.badge || (item.countKey && galleryCounts[item.countKey] !== undefined)) && (
                         <Badge variant="secondary" className="ml-auto h-5 px-1.5 text-[10px] font-medium">
-                          {item.badge}
+                          {item.badge ?? galleryCounts[item.countKey!]?.toLocaleString('zh-CN')}
                         </Badge>
                       )}
                     </Link>

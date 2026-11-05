@@ -10,7 +10,7 @@ import {
   ShirtIcon,
   UserRoundIcon,
 } from 'lucide-react'
-import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
+import { countBy, costumesQuery, galleryImageStatsQuery, portraitsQuery, posesQuery } from '@/api/gallery'
 import { PageHeader } from '@/components/common/PageHeader'
 import { StatCard } from '@/components/common/StatCard'
 import { Badge } from '@/components/ui/badge'
@@ -26,6 +26,7 @@ export const Route = createFileRoute('/')({
       context.queryClient.ensureQueryData(posesQuery),
       context.queryClient.ensureQueryData(costumesQuery),
       context.queryClient.ensureQueryData(portraitsQuery),
+      context.queryClient.ensureQueryData(galleryImageStatsQuery),
     ]),
   pendingComponent: () => <Skeleton className="h-[520px] rounded-[22px]" />,
   component: DashboardPage,
@@ -35,10 +36,19 @@ function DashboardPage() {
   const { data: posesData } = useSuspenseQuery(posesQuery)
   const { data: costumes } = useSuspenseQuery(costumesQuery)
   const { data: portraits } = useSuspenseQuery(portraitsQuery)
+  const { data: imageStats } = useSuspenseQuery(galleryImageStatsQuery)
   const { recipe, togglePortrait } = useStudio()
 
   const topPortraits = portraits.filter((p) => p.热门).slice(0, 10)
-  const totalImages = posesData.items.length + costumes.length + portraits.length
+  const totalReferences = posesData.items.length + costumes.length + portraits.length
+  const poseSystems = countBy(posesData.items, (item) => item.体系)
+  const poseCategories = countBy(posesData.items, (item) => item.分类)
+  const costumePrimaryCategories = countBy(costumes, (item) => item.一级分类 ?? '现实')
+  const costumeCategories = countBy(costumes, (item) => item.分类)
+  const portraitZones = countBy(portraits, (item) => item.分区)
+  const portraitHairLengths = countBy(portraits, (item) => item.发长)
+  const categorySummary = (counts: [string, number][]) =>
+    counts.map(([category, count]) => `${category} ${count.toLocaleString('zh-CN')}`).join(' · ')
 
   return (
     <>
@@ -48,27 +58,27 @@ function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard
           title="总参考图"
-          value={totalImages.toLocaleString('zh-CN')}
+          value={totalReferences.toLocaleString('zh-CN')}
           icon={<LayersIcon />}
-          desc="11,568 本地高清图"
+          desc={`${imageStats.localImageFiles.toLocaleString('zh-CN')} 张本地图片文件`}
         />
         <StatCard
           title="动作姿势 (Pose)"
           value={`${posesData.groups.length} 组`}
           icon={<PersonStandingIcon />}
-          desc={`${posesData.items.length} 张 · 白模/深度`}
+          desc={`${posesData.items.length.toLocaleString('zh-CN')} 张 · ${poseSystems.length} 个体系 / ${poseCategories.length} 类`}
         />
         <StatCard
           title="服装穿搭 (Costume)"
           value={`${costumes.length.toLocaleString('zh-CN')} 套`}
           icon={<ShirtIcon />}
-          desc="现实 1,407 · 二次元 440"
+          desc={categorySummary(costumePrimaryCategories)}
         />
         <StatCard
           title="人像颜值 (Portrait)"
           value={`${portraits.length.toLocaleString('zh-CN')} 张`}
           icon={<UserRoundIcon />}
-          desc="CC0 协议 · 51 款发型"
+          desc={categorySummary(portraitZones)}
         />
       </div>
 
@@ -80,7 +90,7 @@ function DashboardPage() {
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">🕺 动作姿势库</h2>
-            <Badge variant="secondary">1,439</Badge>
+            <Badge variant="secondary">{posesData.items.length.toLocaleString('zh-CN')}</Badge>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-1.5">
             {posesData.groups.slice(0, 4).map((g) => (
@@ -122,7 +132,7 @@ function DashboardPage() {
         >
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold">👤 人像颜值库</h2>
-            <Badge variant="secondary">1,499</Badge>
+            <Badge variant="secondary">{portraits.length.toLocaleString('zh-CN')}</Badge>
           </div>
           <div className="mt-3 grid grid-cols-4 gap-1.5">
             {portraits.slice(0, 4).map((p) => (
@@ -137,6 +147,23 @@ function DashboardPage() {
           </div>
         </Link>
       </div>
+
+      <details className="rounded-[18px] border border-border/60 bg-card/50 px-4 py-3">
+        <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+          <span>自动分类统计</span>
+          <span className="text-xs font-normal text-muted-foreground">
+            姿势 {poseCategories.length} 类 · 服装 {costumeCategories.length} 类 · 人像 {portraitZones.length} 个分区
+          </span>
+        </summary>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <CategoryCountGroup title="动作姿势 · 体系" counts={poseSystems} />
+          <CategoryCountGroup title="动作姿势 · 分类" counts={poseCategories} />
+          <CategoryCountGroup title="服装 · 大类" counts={costumePrimaryCategories} />
+          <CategoryCountGroup title="服装 · 分类" counts={costumeCategories} />
+          <CategoryCountGroup title="人像 · 分区" counts={portraitZones} />
+          <CategoryCountGroup title="人像 · 发长" counts={portraitHairLengths} />
+        </div>
+      </details>
 
       {/* 热门人像 Top10 速选区 */}
       <section className="iridescent-panel rounded-[20px] p-4">
@@ -208,5 +235,20 @@ function DashboardPage() {
         </Link>
       </footer>
     </>
+  )
+}
+
+function CategoryCountGroup({ title, counts }: { title: string; counts: [string, number][] }) {
+  return (
+    <div className="min-w-0">
+      <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{title}</h3>
+      <div className="flex flex-wrap gap-1.5">
+        {counts.map(([category, count]) => (
+          <Badge key={category} variant="secondary" className="font-normal">
+            {category} · {count.toLocaleString('zh-CN')}
+          </Badge>
+        ))}
+      </div>
+    </div>
   )
 }
