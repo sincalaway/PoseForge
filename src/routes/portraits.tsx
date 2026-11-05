@@ -1,6 +1,6 @@
 import { ZoomViewport } from '@/components/common/ZoomViewport'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -28,6 +28,9 @@ import { cn } from '@/lib/utils'
 import { useStudio } from '@/store/studioStore'
 
 export const Route = createFileRoute('/portraits')({
+  validateSearch: (search: Record<string, unknown>): { fromStudio?: '1' } => ({
+    fromStudio: search.fromStudio === '1' ? '1' : undefined,
+  }),
   staticData: { title: '人像颜值库' },
   loader: ({ context }) => context.queryClient.ensureQueryData(portraitsQuery),
   pendingComponent: () => <Skeleton className="h-[540px] rounded-[22px]" />,
@@ -39,6 +42,8 @@ const HAIRS = ['短发', '中发', '中长发', '长发'] as const
 function PortraitsPage() {
   const { data: portraits } = useSuspenseQuery(portraitsQuery)
   const { recipe, togglePortrait } = useStudio()
+  const router = useRouter()
+  const { fromStudio } = Route.useSearch()
 
   const [section, setSection] = useState<'' | '正脸参考' | '造型氛围'>('')
   const [hair, setHair] = useState('')
@@ -67,6 +72,12 @@ function PortraitsPage() {
   }, [portraits, section, hair, styleName, onlyHot, q])
 
   const currentItem = viewerIndex !== null ? filtered[viewerIndex] : null
+
+  const handleTogglePortrait = (item: (typeof portraits)[number]) => {
+    const isAdding = recipe.portrait?.id !== item.id
+    togglePortrait(item)
+    if (isAdding && fromStudio) router.history.back()
+  }
 
   useEffect(() => {
     if (viewerIndex === null || !filtered.length) return
@@ -254,7 +265,7 @@ function PortraitsPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      togglePortrait(item)
+                      handleTogglePortrait(item)
                     }}
                     className={cn(
                       'absolute bottom-2 left-2 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-white shadow transition',
@@ -352,7 +363,7 @@ function PortraitsPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button onClick={() => togglePortrait(currentItem)} variant={picked ? 'secondary' : 'default'}>
+                    <Button onClick={() => handleTogglePortrait(currentItem)} variant={picked ? 'secondary' : 'default'}>
                       {picked ? <CheckIcon className="size-4" /> : <PlusIcon className="size-4" />}
                       {picked ? '已在角色配方中（点击移除）' : '加入角色配方'}
                     </Button>

@@ -1,6 +1,6 @@
 import { ZoomViewport } from '@/components/common/ZoomViewport'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -31,6 +31,9 @@ import { useStudio } from '@/store/studioStore'
 import type { CostumeItem } from '@/types/gallery'
 
 export const Route = createFileRoute('/costumes')({
+  validateSearch: (search: Record<string, unknown>): { fromStudio?: '1' } => ({
+    fromStudio: search.fromStudio === '1' ? '1' : undefined,
+  }),
   staticData: { title: '服装穿搭库' },
   loader: ({ context }) => context.queryClient.ensureQueryData(costumesQuery),
   pendingComponent: () => <Skeleton className="h-[540px] rounded-[22px]" />,
@@ -65,6 +68,8 @@ function CostumeThumbnail({ item, onOpen, picked, onToggle }: { item: CostumeIte
 function CostumesPage() {
   const { data: costumes } = useSuspenseQuery(costumesQuery)
   const { recipe, toggleCostume, safeMode, requestUnlockNsfw } = useStudio()
+  const router = useRouter()
+  const { fromStudio } = Route.useSearch()
 
   const [source, setSource] = useState('all')
   const [view, setView] = useState({ itemId: '', id: 'front' })
@@ -107,6 +112,12 @@ function CostumesPage() {
 
   const viewedItem = viewerIndex !== null ? filtered[viewerIndex] : null
   const currentItem = viewedItem ? selectCostumeView(viewedItem, view.itemId === viewedItem.id ? view.id : 'front') : null
+
+  const handleToggleCostume = (item: CostumeItem) => {
+    const isAdding = !(recipe.costume?.id === item.id && (recipe.costume.selectedView || 'front') === (item.selectedView || 'front'))
+    toggleCostume(item)
+    if (isAdding && fromStudio) router.history.back()
+  }
 
   useEffect(() => {
     if (viewerIndex === null || !filtered.length) return
@@ -260,7 +271,7 @@ function CostumesPage() {
                 key={item.id}
                 className="group flex flex-col overflow-hidden rounded-[20px] bg-muted p-2 transition hover:-translate-y-0.5 hover:shadow-md"
               >
-                <CostumeThumbnail key={item.缩略图} item={item} onOpen={() => setViewerIndex(idx)} picked={picked} onToggle={() => toggleCostume(item)} />
+                <CostumeThumbnail key={item.缩略图} item={item} onOpen={() => setViewerIndex(idx)} picked={picked} onToggle={() => handleToggleCostume(item)} />
 
                 <div className="flex flex-1 flex-col justify-between px-1.5 pt-2.5 pb-1">
                   <div>
@@ -376,7 +387,7 @@ function CostumesPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button onClick={() => toggleCostume(currentItem)} variant={picked ? 'secondary' : 'default'}>
+                    <Button onClick={() => handleToggleCostume(currentItem)} variant={picked ? 'secondary' : 'default'}>
                       {picked ? <CheckIcon className="size-4" /> : <PlusIcon className="size-4" />}
                       {picked ? '已在角色配方中（点击移除）' : '加入角色配方'}
                     </Button>

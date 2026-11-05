@@ -1,6 +1,6 @@
 import { ZoomViewport } from '@/components/common/ZoomViewport'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import {
   CheckIcon,
   ChevronLeftIcon,
@@ -29,6 +29,9 @@ import { useStudio } from '@/store/studioStore'
 import type { PoseGroup, PoseItem } from '@/types/gallery'
 
 export const Route = createFileRoute('/poses')({
+  validateSearch: (search: Record<string, unknown>): { fromStudio?: '1' } => ({
+    fromStudio: search.fromStudio === '1' ? '1' : undefined,
+  }),
   staticData: { title: '动作姿势库' },
   loader: ({ context }) => context.queryClient.ensureQueryData(posesQuery),
   pendingComponent: () => <Skeleton className="h-[540px] rounded-[22px]" />,
@@ -38,6 +41,8 @@ export const Route = createFileRoute('/poses')({
 function PosesPage() {
   const { data } = useSuspenseQuery(posesQuery)
   const { recipe, togglePose, safeMode, requestUnlockNsfw, poseDepthMode, setPoseDepthMode } = useStudio()
+  const router = useRouter()
+  const { fromStudio } = Route.useSearch()
 
   const [line, setLine] = useState('')
   const [category, setCategory] = useState('all')
@@ -135,6 +140,13 @@ function PosesPage() {
   }
 
   const totalCount = viewMode === 'group' ? filteredGroups.length : filteredSingles.length
+
+  const handleTogglePose = (item: PoseItem) => {
+    const useDepth = item.source === 'upload' ? false : (item.useDepth ?? poseDepthMode)
+    const isAdding = recipe.pose?.id !== item.id || Boolean(recipe.pose.useDepth) !== useDepth
+    togglePose(item)
+    if (isAdding && fromStudio) router.history.back()
+  }
 
   return (
     <>
@@ -345,7 +357,7 @@ function PosesPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      togglePose(item)
+                      handleTogglePose(item)
                     }}
                     className={cn(
                       'absolute bottom-2 left-2 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-white shadow transition',
@@ -429,7 +441,7 @@ function PosesPage() {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation()
-                      togglePose(item)
+                      handleTogglePose(item)
                     }}
                     className={cn(
                       'absolute bottom-2 left-2 flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-semibold text-white shadow transition',
@@ -585,7 +597,7 @@ function PosesPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Button onClick={() => togglePose(it)} variant={picked ? 'secondary' : 'default'}>
+                    <Button onClick={() => handleTogglePose(it)} variant={picked ? 'secondary' : 'default'}>
                       {picked ? <CheckIcon className="size-4" /> : <PlusIcon className="size-4" />}
                       {picked ? '已在角色配方中（点击移除）' : `加入角色配方（${poseDepthMode ? '深度图' : '白模'}）`}
                     </Button>

@@ -526,6 +526,7 @@ function StudioPage() {
                   <>
                     <Link
                       to="/portraits"
+                      search={{ fromStudio: '1' }}
                       className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
                     >
                       <div className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -593,6 +594,7 @@ function StudioPage() {
                   <>
                     <Link
                       to="/costumes"
+                      search={{ fromStudio: '1' }}
                       className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
                     >
                       <div className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
@@ -689,6 +691,7 @@ function StudioPage() {
                   <>
                     <Link
                       to="/poses"
+                      search={{ fromStudio: '1' }}
                       className="flex min-h-12 min-w-0 flex-1 items-center gap-2 rounded-lg text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
                     >
                       <div className="flex h-10 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
