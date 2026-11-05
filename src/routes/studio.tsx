@@ -502,14 +502,20 @@ function StudioPage() {
                     <div className="flex min-h-12 min-w-0 flex-1 flex-col justify-between gap-1">
                       <div className="flex items-center justify-between gap-1">
                         <span className="shrink-0 text-[11px] text-muted-foreground">人像</span>
-                        <button
-                          type="button"
-                          aria-label="清除人像参考图"
-                          onClick={() => setPortrait(null)}
-                          className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-                        >
-                          <XIcon className="size-3.5" />
-                        </button>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button type="button" variant="ghost" size="sm" aria-label="本地上传并替换人像参考图" aria-describedby={showReferenceErrors && missingReferences.includes('人像') ? 'reference-errors' : undefined} aria-busy={uploadingSlot === 'portrait'} disabled={uploadingSlot !== null || randomizingSlot !== null} className="h-7 px-1.5 text-[10px]" onClick={() => { uploadSlotRef.current = 'portrait'; slotInputRef.current?.click() }}>
+                            {uploadingSlot === 'portrait' ? <LoaderCircleIcon className="size-3 animate-spin motion-reduce:animate-none" /> : <ImagePlusIcon className="size-3" />}
+                            {uploadingSlot === 'portrait' ? '处理中' : '替换'}
+                          </Button>
+                          <button
+                            type="button"
+                            aria-label="清除人像参考图"
+                            onClick={() => setPortrait(null)}
+                            className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                          >
+                            <XIcon className="size-3.5" />
+                          </button>
+                        </div>
                       </div>
                       <div className="line-clamp-2 text-xs font-medium leading-snug" title={recipe.portrait.发型名称}>
                         {recipe.portrait.发型名称}
@@ -553,14 +559,20 @@ function StudioPage() {
                     <div className="flex min-h-12 min-w-0 flex-1 flex-col justify-between gap-1">
                       <div className="flex items-center justify-between gap-1">
                         <span className="shrink-0 text-[11px] text-muted-foreground">服装</span>
-                        <button
-                          type="button"
-                          aria-label="清除服装参考图"
-                          onClick={() => setCostume(null)}
-                          className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-                        >
-                          <XIcon className="size-3.5" />
-                        </button>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button type="button" variant="ghost" size="sm" aria-label="本地上传并替换服装参考图" aria-describedby={showReferenceErrors && missingReferences.includes('服装') ? 'reference-errors' : undefined} aria-busy={uploadingSlot === 'costume'} disabled={uploadingSlot !== null || randomizingSlot !== null} className="h-7 px-1.5 text-[10px]" onClick={() => { uploadSlotRef.current = 'costume'; slotInputRef.current?.click() }}>
+                            {uploadingSlot === 'costume' ? <LoaderCircleIcon className="size-3 animate-spin motion-reduce:animate-none" /> : <ImagePlusIcon className="size-3" />}
+                            {uploadingSlot === 'costume' ? '处理中' : '替换'}
+                          </Button>
+                          <button
+                            type="button"
+                            aria-label="清除服装参考图"
+                            onClick={() => setCostume(null)}
+                            className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                          >
+                            <XIcon className="size-3.5" />
+                          </button>
+                        </div>
                       </div>
                       <div className="line-clamp-2 text-xs font-medium leading-snug" title={recipe.costume.服装名称}>
                         {recipe.costume.服装名称}
@@ -650,14 +662,20 @@ function StudioPage() {
                             </div>
                           )}
                         </div>
-                        <button
-                          type="button"
-                          aria-label="清除姿势参考图"
-                          onClick={() => setPose(null)}
-                          className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-                        >
-                          <XIcon className="size-3.5" />
-                        </button>
+                        <div className="flex shrink-0 items-center gap-1">
+                          <Button type="button" variant="ghost" size="sm" aria-label="本地上传并替换姿势参考图" aria-describedby={showReferenceErrors && missingReferences.includes('姿势') ? 'reference-errors' : undefined} aria-busy={uploadingSlot === 'pose'} disabled={uploadingSlot !== null || randomizingSlot !== null} className="h-7 px-1.5 text-[10px]" onClick={() => { uploadSlotRef.current = 'pose'; slotInputRef.current?.click() }}>
+                            {uploadingSlot === 'pose' ? <LoaderCircleIcon className="size-3 animate-spin motion-reduce:animate-none" /> : <ImagePlusIcon className="size-3" />}
+                            {uploadingSlot === 'pose' ? '处理中' : '替换'}
+                          </Button>
+                          <button
+                            type="button"
+                            aria-label="清除姿势参考图"
+                            onClick={() => setPose(null)}
+                            className="-mr-0.5 -mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                          >
+                            <XIcon className="size-3.5" />
+                          </button>
+                        </div>
                       </div>
                       <div
                         className="line-clamp-2 text-xs font-medium leading-snug"
