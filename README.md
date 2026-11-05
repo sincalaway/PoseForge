@@ -4,6 +4,14 @@
 
 **本站：** <https://ai-pose-gallery-zh.sincalwow-361.workers.dev/> · **本仓库：** [sincalaway/PoseForge](https://github.com/sincalaway/PoseForge) · **上游演示：** <https://ai-pose-gallery.anhao.app/>
 
+## 品牌标识
+
+展开侧栏使用横向 PoseForge · 灵姿图鉴完整字标；折叠侧栏与移动端顶栏使用竖版紫金人像图标，浏览器图标由该图标等比缩放并留边生成。以下图片均完整保留原图，不裁切。
+
+<a href="src/assets/brand/poseforge-wordmark.jpg"><img src="src/assets/brand/poseforge-wordmark.jpg" width="440" alt="PoseForge · 灵姿图鉴横向完整字标"></a>
+
+<a href="src/assets/brand/poseforge-icon.jpg"><img src="src/assets/brand/poseforge-icon.jpg" width="140" alt="PoseForge 竖版紫金人像图标"></a>
+
 ## 与上游原仓库的完整差异
 
 以已同步的上游提交 [`4889391`](https://github.com/anhao/ai-pose-gallery-zh/commit/488939139c69acfe078372b39d4bd0c457dc060e) 为基线，本仓库额外保留以下改动。完整行为、限制及文件索引见 [PoseForge 差异说明](docs/poseforge-differences.md)。

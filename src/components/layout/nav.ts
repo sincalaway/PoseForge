@@ -27,7 +27,7 @@ export const navGroups: NavGroup[] = [
     label: '工作台',
     items: [
       { title: '图库总览', to: '/', icon: LayoutDashboardIcon },
-      { title: 'AI 角色合成台', to: '/studio', icon: SparklesIcon, badge: 'PRO' },
+      { title: 'PoseForge · 灵姿图鉴', to: '/studio', icon: SparklesIcon, badge: 'PRO' },
     ],
   },
   {

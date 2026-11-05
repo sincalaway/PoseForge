@@ -1,5 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { ExternalLinkIcon, LayersIcon, SparklesIcon } from 'lucide-react'
+import { ExternalLinkIcon, SparklesIcon } from 'lucide-react'
+import brandWordmark from '@/assets/brand/poseforge-wordmark.jpg'
+import brandIcon from '@/assets/brand/poseforge-icon.jpg'
 import { Badge } from '@/components/ui/badge'
 import {
   Sidebar,
@@ -27,16 +29,10 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
-                <div className="relative flex aspect-square size-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-400 text-white shadow-md shadow-indigo-500/20 ring-1 ring-white/25">
-                  <LayersIcon className="size-[18px] stroke-[2.25]" />
-                  <SparklesIcon className="absolute right-0.5 top-0.5 size-3 fill-amber-200 text-amber-200" />
-                </div>
-                <div className="grid flex-1 text-left leading-tight">
-                  <span className="truncate text-sm font-bold tracking-tight">PoseForge</span>
-                  <span className="truncate text-[11px] text-muted-foreground">Pose · Style · Character</span>
-                </div>
+            <SidebarMenuButton size="lg" asChild className="h-auto p-1 group-data-[collapsible=icon]:p-0!">
+              <Link to="/" aria-label="PoseForge · 灵姿图鉴首页">
+                <img src={brandWordmark} alt="PoseForge · 灵姿图鉴" width={1168} height={784} className="h-auto w-full rounded-lg group-data-[collapsible=icon]:hidden" />
+                <img src={brandIcon} alt="" width={784} height={1168} className="hidden size-8 shrink-0 rounded-md bg-[#0b0a25] object-contain group-data-[collapsible=icon]:block" />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -79,7 +75,7 @@ export function AppSidebar() {
                 <div className="grid flex-1 text-left text-xs leading-tight">
                   <span className="truncate font-semibold">角色配方槽 ({count}/3)</span>
                   <span className="truncate text-[11px] text-muted-foreground">
-                    {count === 0 ? '未选择 · 点击去捏人' : '点击进入 AI 合成台'}
+                    {count === 0 ? '未选择 · 点击去捏人' : '点击进入 PoseForge · 灵姿图鉴'}
                   </span>
                 </div>
               </Link>

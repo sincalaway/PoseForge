@@ -3,6 +3,7 @@ import { DicesIcon, ShieldCheckIcon, SparklesIcon } from 'lucide-react'
 import { Fragment } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
+import brandIcon from '@/assets/brand/poseforge-icon.jpg'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import {
   Breadcrumb,
@@ -43,6 +44,9 @@ export function AppHeader() {
   return (
     <header className="app-header @container/header flex min-h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
       <SidebarTrigger className="-ml-1" />
+      <Link to="/" aria-label="PoseForge · 灵姿图鉴首页" className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#0b0a25] md:hidden">
+        <img src={brandIcon} alt="" width={784} height={1168} className="h-full w-full object-contain" />
+      </Link>
       <Separator orientation="vertical" className="mr-2 h-4 data-vertical:self-center" />
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="flex-nowrap">
@@ -84,9 +88,9 @@ export function AppHeader() {
           随机捏人
         </Button>
         <Button size="sm" asChild>
-          <Link to="/studio" aria-label={`AI 合成台，已选 ${selectedCount} 项参考图`}>
+          <Link to="/studio" aria-label={`PoseForge · 灵姿图鉴，已选 ${selectedCount} 项参考图`}>
             <SparklesIcon className="size-3.5" />
-            <span className="hidden @lg/header:inline">AI 合成台</span>
+            <span className="hidden @lg/header:inline">PoseForge · 灵姿图鉴</span>
             {selectedCount > 0 && (
               <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 py-0.2 text-[11px] font-bold">
                 {selectedCount}/3

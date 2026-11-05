@@ -74,7 +74,7 @@ import type {
 } from '@/types/gallery'
 
 export const Route = createFileRoute('/studio')({
-  staticData: { title: 'AI 合成台' },
+  staticData: { title: 'PoseForge · 灵姿图鉴' },
   component: StudioPage,
 })
 
@@ -417,7 +417,7 @@ function StudioPage() {
   return (
     <>
       <PageHeader
-        title="AI 角色合成台"
+        title="PoseForge · 灵姿图鉴"
         actions={
           activeProvider === 'comfyui' ? <ComfyConnectionStatus compact /> : <Button variant="outline" size="sm" asChild>
             <Link to="/settings">
