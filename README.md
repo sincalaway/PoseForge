@@ -8,9 +8,7 @@
 
 展开侧栏使用横向 PoseForge · 灵姿图鉴完整字标；折叠侧栏与移动端顶栏使用竖版紫金人像图标，浏览器图标由该图标等比缩放并留边生成。以下图片均完整保留原图，不裁切。
 
-<a href="src/assets/brand/poseforge-wordmark.jpg"><img src="src/assets/brand/poseforge-wordmark.jpg" width="440" alt="PoseForge · 灵姿图鉴横向完整字标"></a>
-
-<a href="src/assets/brand/poseforge-icon.jpg"><img src="src/assets/brand/poseforge-icon.jpg" width="140" alt="PoseForge 竖版紫金人像图标"></a>
+<p align="center"><a href="src/assets/brand/poseforge-wordmark.jpg"><img src="src/assets/brand/poseforge-wordmark.jpg" width="320" alt="PoseForge · 灵姿图鉴横向完整字标"></a> <a href="src/assets/brand/poseforge-icon.jpg"><img src="src/assets/brand/poseforge-icon.jpg" width="144" alt="PoseForge 竖版紫金人像图标"></a></p>
 
 ## 与上游原仓库的完整差异
 
