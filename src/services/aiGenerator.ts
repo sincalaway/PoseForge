@@ -1,10 +1,9 @@
+import { generateWithPixAi, PIXAI_MODELS, type PixAiTaskHandle, type PreparedPixAiGeneration } from './pixai'
 import type { ApiConfig, ExtraReferenceImage, ImageProviderId, RecipeState } from '@/types/gallery'
+import { getGptInputFidelity } from '@/lib/gptImageCapabilities'
 import { applyWorkflowOverrides, getWorkflowImages, validateReferenceCombinations, workflowIdentity, type ComfyObjectInfo } from '@/lib/comfyWorkflowParameters'
 import { poseImagePath, referenceImageUrl } from '@/lib/recipeImages'
 import qwen2509ThreeImageWorkflow from '@/workflows/qwen_image_edit_2509_3img.api.json'
-import qwen21MultiReferenceWorkflow from '@/workflows/qwen_image_2_1_multiref.api.json'
-import { IMAGE_PROVIDER_ADAPTERS } from '@/services/providers/registry'
-import type { ProviderGenerationContext } from '@/services/providers/context'
 
 export interface ProviderModelOption {
   value: string
@@ -47,6 +46,8 @@ export const PROVIDER_META: Record<
     defaultBaseUrl: 'https://api.openai.com/v1',
     docUrl: 'https://platform.openai.com/docs/guides/image-generation',
     models: [
+      { value: 'gpt-image-2.6-sunburst', label: 'gpt-image-2.6-sunburst' },
+      { value: 'gpt-image-2.6-flare', label: 'gpt-image-2.6-flare' },
       { value: 'gpt-image-2.5', label: 'gpt-image-2.5' },
       { value: 'gpt-image-2.5-sunburst', label: 'gpt-image-2.5-sunburst' },
       { value: 'gpt-image-2.5-flare', label: 'gpt-image-2.5-flare' },
@@ -86,32 +87,11 @@ export const PROVIDER_META: Record<
       { value: 'custom', label: '自定义模型 ID / Endpoint' },
     ],
   },
-  pollinations: {
-    id: 'pollinations',
-    name: 'Pollinations',
-    shortName: 'Pollinations',
-    defaultBaseUrl: 'https://gen.pollinations.ai',
-    docUrl: 'https://gen.pollinations.ai/docs',
-    models: [
-      { value: 'microsoft/mai-image-2.6-flash', label: 'microsoft/mai-image-2.6-flash（支持参考图）' },
-      { value: 'qwen/qwen-image-2.1', label: 'qwen/qwen-image-2.1' },
-      { value: 'google/gemini-nano-banana-2.1', label: 'google/gemini-nano-banana-2.1' },
-      { value: 'bytedance/seedream-5.0-flash', label: 'bytedance/seedream-5.0-flash' },
-      { value: 'custom', label: '自定义模型 ID' },
-    ],
-  },
-  modelscope: {
-    id: 'modelscope',
-    name: 'ModelScope（魔搭）',
-    shortName: 'ModelScope',
-    defaultBaseUrl: 'https://api-inference.modelscope.cn',
-    docUrl: 'https://www.modelscope.cn/docs/model-service/API-Inference/intro',
-    models: [
-      { value: 'Qwen/Qwen-Image-Edit-2511', label: 'Qwen/Qwen-Image-Edit-2511（图像编辑）' },
-      { value: 'Qwen/Qwen-Image', label: 'Qwen/Qwen-Image（文生图）' },
-      { value: 'Tongyi-MAI/Z-Image-Turbo', label: 'Tongyi-MAI/Z-Image-Turbo' },
-      { value: 'custom', label: '自定义模型 ID' },
-    ],
+  pixai: {
+    id: 'pixai', name: 'PixAI', shortName: 'PixAI',
+    defaultBaseUrl: 'https://api.pixai.art',
+    docUrl: 'https://platform.pixai.art/en/docs/api-v2/image/createImage',
+    models: PIXAI_MODELS,
   },
   comfyui: {
     id: 'comfyui',
@@ -134,7 +114,7 @@ export const STYLE_PRESETS: Record<string, { label: string; prompt: string }> = 
   },
   realistic: {
     label: '写实人像写真',
-    prompt: '高品质写实商业人像摄影，85mm 人像镜头质感，柔和自然的光线与真实肤质、服装材质；人物身形挺拔高挑、比例修长匀称、姿势舒展。在全身构图中采用纵向取景，让人物完整入画并成为画面主体，保留适当头顶与脚下空间；以平视或略低机位呈现自然透视，突出修长腿部线条，避免人物显小、腿短或广角畸变。严格保持真实人体结构，不夸张拉伸；非全身构图遵循参考景别与构图。主体清晰对焦，按画面景别保留足够景深，肌肤纹理、发丝与织物细节清楚自然，画面通透，避免模糊、过度磨皮与过度锐化，8K 高清质感。',
+    prompt: '写实商业摄影级质感，85mm 人像镜头，自然柔和光影，真实肌肤纹理与织物细节，8k 高清画质。',
   },
   fashion: {
     label: '日韩杂志画报',
@@ -496,7 +476,7 @@ function extractUniversalImage(json: any): string | null {
 type ComfyNode = { class_type: string; inputs: Record<string, any>; _meta?: { title?: string; studio?: { imageRole?: string } } }
 type ComfyWorkflow = Record<string, ComfyNode>
 
-export type ComfyPresetId = 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img' | 'qwen21_multiref'
+export type ComfyPresetId = 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img'
 
 export interface ComfyNodeMappings {
   promptNodeId: string
@@ -664,11 +644,6 @@ export const COMFYUI_WORKFLOW_TEMPLATES: Record<
     label: 'Qwen-Image 2.1 双图姿态迁移（需另装 2.1 模型）',
     workflow: buildQwen21Workflow(false),
     defaults: { promptNodeId: '9', portraitNodeId: '1', costumeNodeId: 'none', poseNodeId: '2', stitchedNodeId: 'none' },
-  },
-  qwen21_multiref: {
-    label: 'Qwen Image 2.1 多图编辑（人像+服装+姿势）',
-    workflow: qwen21MultiReferenceWorkflow as ComfyWorkflow,
-    defaults: { promptNodeId: '8', portraitNodeId: '1', costumeNodeId: '2', poseNodeId: '3', stitchedNodeId: 'none' },
   },
 }
 
@@ -1100,6 +1075,7 @@ async function uploadImageToComfy(
 }
 
 export interface ComfyTaskHandle {
+  provider?: 'comfyui'
   promptId: string
   clientId: string
   baseUrl: string
@@ -1507,12 +1483,9 @@ async function generateWithComfyUi(params: {
   // 2. 注入提示词节点
   if (cp.promptNodeId && cp.promptNodeId !== 'none' && workflow[cp.promptNodeId]?.inputs) {
     const inputs = workflow[cp.promptNodeId].inputs
-    const comfyPrompt = cp.workflowPreset === 'qwen21_multiref'
-      ? prompt.replace(/图([1-9]\d*)/g, '<image$1>').replace(/图一/g, '<image1>')
-      : prompt
     for (const field of ['prompt', 'text', 'string', 'positive']) {
       if (typeof inputs[field] === 'string') {
-        inputs[field] = comfyPrompt
+        inputs[field] = prompt
         break
       }
     }
@@ -1563,7 +1536,7 @@ async function generateWithComfyUi(params: {
       throw new ComfySubmissionRejectedError(formatComfyPromptError(promptJson, workflow, promptRes.status), promptRes.status)
     }
     if (typeof promptJson?.prompt_id !== 'string' || !promptJson.prompt_id) throw new ComfySubmissionUnknownError()
-    const task: ComfyTaskHandle = { promptId: promptJson.prompt_id, clientId, baseUrl, submittedAt }
+    const task: ComfyTaskHandle = { provider: 'comfyui', promptId: promptJson.prompt_id, clientId, baseUrl, submittedAt }
     try { await params.onSubmitted?.(task) } catch {
       throw new ComfyTaskError('[ComfyUI] 任务已提交，但保存恢复记录失败。请保留任务编号后恢复，勿重复提交。', task, 'storage')
     }
@@ -1576,15 +1549,20 @@ export async function generateCharacterImage(params: {
   prompt: string
   config: ApiConfig
   onProgress?: (p: GenerationProgress) => void
-  onSubmitting?: (prepared?: PreparedComfyGeneration) => Promise<void>
-  onSubmitted?: (task: ComfyTaskHandle) => Promise<void>
+  onSubmitting?: (prepared?: PreparedComfyGeneration | PreparedPixAiGeneration) => Promise<void>
+  onSubmitted?: (task: ComfyTaskHandle | PixAiTaskHandle) => Promise<void>
   signal?: AbortSignal
 }): Promise<{ imageUrl: string; modelUsed: string; providerUsed: ImageProviderId }> {
   const { recipe, prompt, config, onProgress } = params
   const provider = config.activeProvider
   const pCfg = config.providers[provider]
   const apiKey = pCfg.apiKey.trim()
-  if (provider !== 'comfyui' && !apiKey) throw new Error(`请先配置 ${PROVIDER_META[provider].name} 的 API Key`)
+
+  if (provider !== 'comfyui' && !apiKey) {
+    throw new Error(`请先配置 ${PROVIDER_META[provider].name} 的 API Key`)
+  }
+
+  if (provider === 'pixai') return generateWithPixAi(params)
 
   const rawSources = [
     recipe.portrait && (recipe.portrait.原图 || recipe.portrait.缩略图),
@@ -1594,29 +1572,40 @@ export async function generateCharacterImage(params: {
     ...(provider === 'comfyui' && recipe.workflowImagesIdentity === workflowIdentity(config.comfyuiParams.workflowJson)
       ? Object.values(recipe.workflowImages || {}).map((image) => image.url) : []),
   ].filter(Boolean) as string[]
-  if (!rawSources.length) throw new Error('请先选择或上传至少 1 张参考图')
+
+  if (!rawSources.length) {
+    throw new Error('请先选择或上传至少 1 张参考图')
+  }
+
   const model = pCfg.model === 'custom' ? pCfg.customModel.trim() : pCfg.model
-  if (provider !== 'comfyui' && !model) throw new Error('请选择或填写有效的模型名称')
+  if (provider !== 'comfyui' && !model) {
+    throw new Error('请选择或填写有效的模型名称')
+  }
+
   const baseUrl = (pCfg.baseUrl.trim() || PROVIDER_META[provider].defaultBaseUrl).replace(/\/+$/, '')
 
   if (provider === 'comfyui') {
     return generateWithComfyUi({ recipe, prompt, config, baseUrl, apiKey, onProgress, onSubmitting: params.onSubmitting, onSubmitted: params.onSubmitted, signal: params.signal })
   }
-  const remoteUrlOnly = provider === 'pollinations' || provider === 'modelscope'
-  const needBase64 = !remoteUrlOnly && (
+
+  // 判断当前请求是否需要转换为本地 Base64：
+  // 1) 用户显式选择了 base64 模式
+  // 2) 或者勾选了「附带三合一 Canvas 合成图」（本地动态绘制无公网 URL）
+  // 3) 或者使用 Gemini Native 原生接口 / OpenAI multipart/form-data 模式
+  const needBase64 =
     config.imagePassMode === 'base64' ||
     config.sendStitchedSheet ||
     (provider === 'gemini' && config.geminiParams.endpointMode === 'native') ||
     (provider === 'gpt' && config.gptParams.endpointMode === 'images_edits')
-  )
-  const imageRefs = needBase64
+
+  const imageRefs: string[] = needBase64
     ? await Promise.all(rawSources.map(srcToPngDataUrl))
     : rawSources.map(toPublicHttpsUrl)
-  const allImageRefs = config.sendStitchedSheet
+
+  const allImageRefs: string[] = config.sendStitchedSheet
     ? [...imageRefs, await stitchRecipeCanvas(recipe)]
     : imageRefs
 
-  const runLegacyProtocol = async () => {
   let res: Response
   let json: any
 
@@ -1625,6 +1614,7 @@ export async function generateCharacterImage(params: {
   // =========================================================================
   if (provider === 'gpt') {
     const g = config.gptParams
+    const inputFidelity = getGptInputFidelity(model, g.inputFidelity)
     const v1 = baseUrl.endsWith('/v1') ? baseUrl : `${baseUrl}/v1`
 
     if (g.endpointMode === 'images_edits_json') {
@@ -1636,7 +1626,7 @@ export async function generateCharacterImage(params: {
       }
       if (g.size !== 'auto') payload.size = g.size
       if (g.quality !== 'auto') payload.quality = g.quality
-      if (g.inputFidelity) payload.input_fidelity = g.inputFidelity
+      if (inputFidelity) payload.input_fidelity = inputFidelity
       if (g.background !== 'auto') payload.background = g.background
       if (g.outputFormat) payload.output_format = g.outputFormat
       if (g.moderation !== 'auto') payload.moderation = g.moderation
@@ -1664,7 +1654,7 @@ export async function generateCharacterImage(params: {
       })
       if (g.size !== 'auto') fd.append('size', g.size)
       if (g.quality !== 'auto') fd.append('quality', g.quality)
-      if (g.inputFidelity) fd.append('input_fidelity', g.inputFidelity)
+      if (inputFidelity) fd.append('input_fidelity', inputFidelity)
       if (g.background !== 'auto') fd.append('background', g.background)
       if (g.outputFormat) fd.append('output_format', g.outputFormat)
       if (g.moderation !== 'auto') fd.append('moderation', g.moderation)
@@ -1689,7 +1679,7 @@ export async function generateCharacterImage(params: {
       if (g.size !== 'auto') toolCfg.size = g.size
       if (g.quality !== 'auto') toolCfg.quality = g.quality
       if (g.background !== 'auto') toolCfg.background = g.background
-      if (g.inputFidelity) toolCfg.input_fidelity = g.inputFidelity
+      if (inputFidelity) toolCfg.input_fidelity = inputFidelity
       if (g.outputFormat) toolCfg.output_format = g.outputFormat
 
       res = await smartFetch(
@@ -1901,16 +1891,5 @@ export async function generateCharacterImage(params: {
     throw new Error(`接口已响应但未解析到图片输出：${fallbackText}`)
   }
 
-    return { imageUrl, modelUsed: model }
-  }
-  const context = {
-    provider, config, recipe, prompt, model, baseUrl, apiKey, imageRefs, allImageRefs, onProgress,
-    runLegacyProtocol,
-    runComfyUi: async () => {
-      const result = await generateWithComfyUi({ recipe, prompt, config, baseUrl, apiKey, onProgress })
-      return { imageUrl: result.imageUrl, modelUsed: result.modelUsed }
-    },
-  } satisfies ProviderGenerationContext
-  const result = await IMAGE_PROVIDER_ADAPTERS[provider].generate(context)
-  return { ...result, providerUsed: provider }
+  return { imageUrl, modelUsed: model, providerUsed: provider }
 }

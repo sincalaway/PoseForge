@@ -27,7 +27,7 @@ export const Route = createFileRoute('/settings')({
   component: SettingsPage,
 })
 
-const PROVIDER_ORDER: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'pollinations', 'modelscope', 'comfyui']
+const PROVIDER_ORDER: ImageProviderId[] = ['gemini', 'gpt', 'qwen', 'doubao', 'pixai', 'comfyui']
 
 function SettingsPage() {
   const { apiConfig, updateApiConfig, updateProviderConfig, comfyConnection } = useStudio()
@@ -69,8 +69,8 @@ function SettingsPage() {
         }
       />
 
-      {/* 图片生成服务切换 */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
+      {/* 五大协议切换标签 */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         {PROVIDER_ORDER.map((id) => {
           const itemMeta = PROVIDER_META[id]
           const isActive = pid === id
@@ -149,6 +149,7 @@ function SettingsPage() {
           }
         >
           <Input
+            disabled={pid === 'pixai'}
             type={pid === 'comfyui' ? 'text' : 'url'}
             value={pCfg.baseUrl}
             onChange={(e) => updateProviderConfig(pid, { baseUrl: e.target.value })}
@@ -156,10 +157,7 @@ function SettingsPage() {
           />
         </Field>
 
-        <Field
-          label={pid === 'comfyui' ? 'API Key（可选，本地留空）' : 'API Key'}
-          hint={pid === 'pollinations' ? 'Pollinations 建议浏览器应用使用 BYOP 授权流程。本项目按现有架构将你填写的 Key 保存在本机浏览器，请使用自己的、预算受限的 Key。' : undefined}
-        >
+        <Field label={pid === 'comfyui' ? 'API Key（可选，本地留空）' : 'API Key'}>
           <div className="relative">
             <Input
               type={showKey ? 'text' : 'password'}
@@ -181,10 +179,6 @@ function SettingsPage() {
             </button>
           </div>
         </Field>
-
-        {(pid === 'modelscope' || pid === 'pollinations') && (
-          <p className="text-xs text-muted-foreground">{pid === 'modelscope' ? 'ModelScope 使用异步图像任务。图生图要求服务端可访问参考图 URL；本地上传的图片和三合一拼图暂不可用。' : '图生图要求可公开访问的参考图 URL；本地上传的图片和三合一拼图暂不可用。'}</p>
-        )}
 
         {pid !== 'comfyui' && (
           <Field label="默认模型 ID">
@@ -223,9 +217,10 @@ function SettingsPage() {
       )}
 
       {/* 全局传输设置 */}
+      {pid === 'pixai' && <p className="text-sm text-muted-foreground">支持 Tsubaki.3 和 Tsubaki.3 Flash，每次输出一张。人像、服装、姿势各一图，按原始图片上传；默认启用本站代理。Key 随请求发送到本站代理与 PixAI，请仅在可信部署上使用。</p>}
       {pid !== 'comfyui' && (
         <Section title="全局请求选项">
-          <Field label="参考图传参方式">
+          {pid !== 'pixai' && <Field label="参考图传参方式">
             <Select
               value={apiConfig.imagePassMode}
               onValueChange={(v) => updateApiConfig({ imagePassMode: v as ImagePassMode })}
@@ -238,11 +233,11 @@ function SettingsPage() {
                 <SelectItem value="base64">转 Base64 编码传输</SelectItem>
               </SelectContent>
             </Select>
-          </Field>
+          </Field>}
 
           <Field
             label="服务端 CORS 代理 (/api/proxy)"
-            hint="默认关闭（浏览器直连）；切换到阿里云百炼 (Qwen) 或火山方舟 (Doubao) 时会自动开启。仅支持白名单域名（可通过服务端环境变量 PROXY_ALLOWED_ORIGINS 扩展）"
+            hint="默认关闭（浏览器直连）；切换到阿里云百炼 (Qwen)、火山方舟 (Doubao) 或 PixAI 时会自动开启。仅支持白名单域名（可通过服务端环境变量 PROXY_ALLOWED_ORIGINS 扩展）"
           >
             <div className="flex h-9 items-center justify-between rounded-xl border bg-background px-3">
               <span className="text-xs text-muted-foreground">

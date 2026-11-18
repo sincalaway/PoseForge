@@ -33,7 +33,7 @@ export interface CostumeView {
 }
 
 export interface CostumeItem {
-  source?: 'upload' | 'charadb' | 'gia-anime' | 'shisei' | 'poseforge'
+  source?: 'upload' | 'charadb' | 'gia-anime' | 'shisei'
   views?: CostumeView[]
   selectedView?: string
   一级分类?: '现实' | '二次元'
@@ -85,7 +85,7 @@ export interface RecipeState {
   extraImages?: ExtraReferenceImage[]
 }
 
-export type ImageProviderId = 'gemini' | 'gpt' | 'qwen' | 'doubao' | 'pollinations' | 'modelscope' | 'comfyui'
+export type ImageProviderId = 'gemini' | 'gpt' | 'qwen' | 'doubao' | 'comfyui' | 'pixai'
 
 export interface ProviderEndpointConfig {
   baseUrl: string
@@ -105,7 +105,7 @@ export interface WorkflowParameterOverrides {
 
 export interface ComfyUiParams {
   parameterOverrides?: WorkflowParameterOverrides
-  workflowPreset: 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img' | 'qwen21_multiref' | 'custom'
+  workflowPreset: 'qwen2509_3img' | 'qwen2509_2img' | 'qwen21_3img' | 'qwen21_2img' | 'custom'
   workflowJson: string
   promptNodeId: string
   portraitNodeId: string
@@ -150,6 +150,14 @@ export interface DoubaoParams {
   responseFormat: 'b64_json' | 'url'
 }
 
+export interface PixAiParams {
+  aspectRatio: '1:1' | '2:3' | '3:2' | '3:4' | '4:3' | '3:5' | '5:3' | '9:16' | '16:9' | '1:3' | '3:1'
+  size: '1k' | '1.5k'
+  mode: 'default' | 'pro' | 'ultra'
+  negativePrompt: string
+  seed?: number
+}
+
 export interface ApiConfig {
   activeProvider: ImageProviderId
   imagePassMode: ImagePassMode
@@ -161,6 +169,7 @@ export interface ApiConfig {
   geminiParams: GeminiParams
   qwenParams: QwenParams
   doubaoParams: DoubaoParams
+  pixaiParams: PixAiParams
   comfyuiParams: ComfyUiParams
 }
 
@@ -181,5 +190,6 @@ export interface GenerationSnapshot {
   prompt: string
   settings: Omit<ApiConfig, 'providers'>
   models: Record<ImageProviderId, Pick<ProviderEndpointConfig, 'model' | 'customModel'>>
+  submittedPixAiPayload?: Record<string, unknown>
   submittedWorkflowJson?: string
 }
