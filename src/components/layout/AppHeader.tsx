@@ -3,7 +3,6 @@ import { DicesIcon, ShieldCheckIcon, SparklesIcon } from 'lucide-react'
 import { Fragment } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { costumesQuery, portraitsQuery, posesQuery } from '@/api/gallery'
-import brandIcon from '@/assets/brand/poseforge-icon.jpg'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import {
   Breadcrumb,
@@ -17,6 +16,8 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useStudio } from '@/store/studioStore'
+import { t } from '@/i18n'
+import { LanguageMenu, LanguageSwitch } from '@/components/common/LanguageSwitch'
 
 export function AppHeader() {
   const { recipe, randomizeRecipe, safeMode, toggleSafeMode } = useStudio()
@@ -42,11 +43,8 @@ export function AppHeader() {
   }
 
   return (
-    <header className="app-header @container/header flex min-h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
+    <header className="@container/header flex min-h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
       <SidebarTrigger className="-ml-1" />
-      <Link to="/" aria-label="PoseForge · 灵姿图鉴首页" className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#0b0a25] md:hidden">
-        <img src={brandIcon} alt="" width={784} height={1168} className="h-full w-full object-contain" />
-      </Link>
       <Separator orientation="vertical" className="mr-2 h-4 data-vertical:self-center" />
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="flex-nowrap">
@@ -55,10 +53,10 @@ export function AppHeader() {
               {i > 0 && <BreadcrumbSeparator />}
               <BreadcrumbItem className="min-w-0">
                 {i === crumbs.length - 1 ? (
-                  <BreadcrumbPage className="truncate">{c.title}</BreadcrumbPage>
+                  <BreadcrumbPage className="truncate">{t(c.title)}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>
-                    <Link to={c.path}>{c.title}</Link>
+                    <Link to={c.path}>{t(c.title)}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
@@ -72,7 +70,7 @@ export function AppHeader() {
           variant={safeMode ? 'outline' : 'secondary'}
           size="sm"
           onClick={toggleSafeMode}
-          title={safeMode ? '当前已开启安全模式（已隐藏 18+ 敏感内容），点击可解锁完整图库' : '当前已显示 18+ 完整图库，点击可切回安全模式'}
+          title={safeMode ? t('当前已开启安全模式（已隐藏 18+ 敏感内容），点击可解锁完整图库') : t('当前已显示 18+ 完整图库，点击可切回安全模式')}
           className={
             safeMode
               ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400'
@@ -80,17 +78,17 @@ export function AppHeader() {
           }
         >
           <ShieldCheckIcon className="size-3.5" />
-          <span className="hidden @2xl/header:inline">{safeMode ? '安全模式 (SFW)' : '18+ 完整模式'}</span>
+          <span className="hidden @2xl/header:inline">{safeMode ? t('安全模式 (SFW)') : t('18+ 完整模式')}</span>
           <span className="@2xl/header:hidden">{safeMode ? 'SFW' : '18+'}</span>
         </Button>
         <Button variant="outline" size="sm" onClick={handleRandom} className="hidden @3xl/header:inline-flex">
           <DicesIcon className="size-3.5" />
-          随机捏人
+          {t('随机捏人')}
         </Button>
         <Button size="sm" asChild>
-          <Link to="/studio" aria-label={`PoseForge · 灵姿图鉴，已选 ${selectedCount} 项参考图`}>
+          <Link to="/studio" aria-label={t('AI 合成台，已选 {n} 项参考图', { n: selectedCount })}>
             <SparklesIcon className="size-3.5" />
-            <span className="hidden @lg/header:inline">PoseForge · 灵姿图鉴</span>
+            <span className="hidden @lg/header:inline">{t('AI 合成台')}</span>
             {selectedCount > 0 && (
               <span className="ml-1 rounded-full bg-primary-foreground/20 px-1.5 py-0.2 text-[11px] font-bold">
                 {selectedCount}/3
@@ -98,6 +96,8 @@ export function AppHeader() {
             )}
           </Link>
         </Button>
+        <LanguageSwitch className="hidden @3xl/header:flex" />
+        <LanguageMenu className="@3xl/header:hidden" />
         <ThemeToggle />
       </div>
     </header>
